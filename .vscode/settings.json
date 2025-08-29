@@ -1,0 +1,15 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "ai.models": [
+        "gpt-4",
+        "claude-3-sonnet"
+    ],
+    "ai.autocomplete": true,
+    "ai.codeActions": true,
+    "ai.contextWindow": "large",
+    "editor.codeActions.triggerOnFocusChange": true
+}

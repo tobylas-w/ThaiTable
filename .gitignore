@@ -1,0 +1,12 @@
+node_modules/
+.dist/
+frontend/dist/
+.env
+.env.*
+.DS_Store
+*.log
+coverage/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
