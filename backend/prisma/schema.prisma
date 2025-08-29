@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id          String   @id @default(uuid())
+  name_th     String
+  name_en     String
+  address_th  String
+  address_en  String
+  tax_id      String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  menus       Menu[]
+  orders      Order[]
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  role          Role
+  name_th       String
+  name_en       String
+  restaurant_id String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  STAFF
+  ADMIN
+}
+
+model Menu {
+  id            String   @id @default(uuid())
+  restaurant_id String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
+  name_th       String
+  name_en       String
+  price_thb     Decimal   @db.Decimal(10,2)
+  spice_level   Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  table_id    String
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
+  restaurant_id String
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
+  total_thb   Decimal  @db.Decimal(10,2)
+  status      OrderStatus
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  COOKING
+  SERVED
+  PAID
+  CANCELLED
+}
