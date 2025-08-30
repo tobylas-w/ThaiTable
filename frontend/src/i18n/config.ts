@@ -1,10 +1,10 @@
 import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
+import { initReactI18next } from 'react-i18next'
 
 // Import translation files
-import enTranslations from './i18n/locales/en.json'
-import thTranslations from './i18n/locales/th.json'
+import enTranslations from './locales/en.json'
+import thTranslations from './locales/th.json'
 
 const resources = {
   en: {
@@ -22,11 +22,11 @@ i18n
     resources,
     fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
-    
+
     interpolation: {
       escapeValue: false, // React already escapes values
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],

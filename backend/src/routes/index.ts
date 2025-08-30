@@ -4,6 +4,7 @@ import menuRoutes from './menu';
 import orderRoutes from './order';
 import restaurantRoutes from './restaurant';
 import categoryRoutes from './categories';
+import tableRoutes from './tables';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/menu', menuRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/order', orderRoutes);
 router.use('/restaurant', restaurantRoutes);
+router.use('/tables', tableRoutes);
 
 export default router;

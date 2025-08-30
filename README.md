@@ -1,192 +1,288 @@
 # ThaiTable Restaurant Management System
 
-This repository contains the source code for **ThaiTable**, a multi-tenant restaurant management platform built specifically for the Thai market.
+A comprehensive restaurant management system designed specifically for Thai restaurants, featuring bilingual Thai/English support, local payment methods, and cultural UX considerations.
 
-## 🚀 Current Status
+## 🚀 Features
 
-### ✅ Completed (Phase 1 - Week 1 & 2)
-- [x] **Monorepo Structure**: Backend + Frontend directories
-- [x] **Backend Scaffold**: Express.js + TypeScript + Prisma
-- [x] **Frontend Scaffold**: React + Vite + Tailwind CSS
-- [x] **Development Environment**: Cursor IDE + AI integration with beautiful ThaiTable theme
-- [x] **Code Quality**: ESLint + Prettier configuration for both frontend and backend
-- [x] **Database Schema**: Enhanced Prisma schema with Thai market entities
-- [x] **Authentication**: JWT + bcrypt skeleton
-- [x] **Environment Config**: dotenv setup with Thai-specific variables
-- [x] **GitHub Repository**: CI/CD workflow with GitHub Actions
-- [x] **Documentation**: Comprehensive project docs
-- [x] **Menu Management System**: Complete CRUD with Thai language support
-- [x] **Category Management**: Drag-and-drop reordering interface
-- [x] **Thai Localization**: Complete i18n setup with Thai/English support
-- [x] **API Integration**: Comprehensive service layer with TypeScript
-- [x] **Mobile Responsive**: Touch-optimized for Thai restaurant tablets
-- [x] **Beautiful Landing Page**: ThaiTable marketing site
+### Core Functionality
+- **Multi-tenant Restaurant Management** - Support for multiple restaurants
+- **Bilingual Interface** - Complete Thai/English language support
+- **Menu Management** - Full CRUD operations with categories and pricing
+- **Order Management** - Real-time order tracking and status updates
+- **Table Management** - Floor plan and reservation system
+- **User Management** - Role-based access control (Owner, Manager, Staff)
 
-### 🔄 In Progress
-- [ ] **Railway Setup**: PostgreSQL database + backend deployment
-- [ ] **Vercel Frontend**: Automatic deployment pipeline
-- [ ] **Menu Management**: CRUD API + React UI
+### Thai Market Features
+- **Local Payment Methods** - PromptPay, TrueMoney, SCB Easy, LINE Pay
+- **Thai Business Rules** - VAT calculations, tax ID validation
+- **Cultural UX** - Thai color preferences, navigation patterns
+- **Local Integrations** - GrabFood, FoodPanda, LINE MAN APIs
+- **Thai Currency** - Proper ฿ formatting and calculations
 
-### 📋 Next Steps (Phase 1 - Week 2)
-- [ ] **Menu CRUD API**: Complete backend endpoints
-- [ ] **S3 Image Upload**: AWS integration for menu photos
-- [ ] **Menu Management UI**: React components for restaurant staff
-- [ ] **Order Management**: Basic order flow
-- [ ] **Table Management**: Restaurant floor plan
-
-## 🏗️ Monorepo Structure
-
-```
-ThaiTable/
-├── backend/                 # Node.js + Express + TypeScript API
-│   ├── src/
-│   │   ├── config/         # Environment & app config
-│   │   ├── middleware/     # Auth & validation middleware
-│   │   └── index.ts        # Server entry point
-│   ├── prisma/             # Database schema & migrations
-│   └── package.json
-├── frontend/               # React + Vite + TypeScript web dashboard
-│   ├── src/
-│   │   ├── pages/          # React components
-│   │   ├── styles/         # Global CSS & Tailwind
-│   │   └── main.tsx        # App entry point
-│   └── package.json
-├── .github/                # CI/CD workflows
-├── .vscode/                # Cursor IDE configuration
-└── docs/                   # Project documentation
-```
+### Technical Features
+- **Real-time Updates** - WebSocket integration for live order updates
+- **Mobile-First Design** - Optimized for tablets and mobile devices
+- **Offline Support** - PWA capabilities for unreliable connections
+- **Analytics Dashboard** - Sales reports and business insights
+- **Multi-platform** - Web, Desktop (Electron), Mobile (React Native)
 
 ## 🛠️ Tech Stack
 
-### Backend
-- **Runtime**: Node.js 20 + TypeScript 5
-- **Framework**: Express.js 4.18
-- **Database**: PostgreSQL 15 + Prisma ORM
-- **Auth**: JWT + bcrypt
-- **Validation**: Zod
-- **File Storage**: AWS S3
-
 ### Frontend
-- **Framework**: React 18 + TypeScript 5
-- **Build Tool**: Vite 4
-- **Styling**: Tailwind CSS 3
-- **State**: Zustand 4
-- **Forms**: React Hook Form + Zod
+- **React 18** + **TypeScript 5** - Modern React with type safety
+- **Vite 4** - Fast build tool and development server
+- **Tailwind CSS 3** - Utility-first CSS framework
+- **Zustand 4** - Lightweight state management
+- **React Hook Form** + **Zod** - Form handling and validation
+- **React Router 6** - Client-side routing
+- **react-i18next** - Internationalization
+
+### Backend
+- **Node.js 20** + **TypeScript 5** - Server runtime
+- **Express.js 4.18** - Web framework
+- **PostgreSQL 15** - Primary database
+- **Prisma ORM 5.6** - Database toolkit
+- **JWT** + **bcrypt** - Authentication and security
+- **Redis 7.0** - Caching and sessions
 
 ### Infrastructure
-- **Hosting**: Railway (backend) + Vercel (frontend)
-- **Database**: Railway PostgreSQL
-- **CDN**: CloudFlare
-- **Monitoring**: Sentry + UptimeRobot
+- **Railway** - Backend hosting and PostgreSQL
+- **Vercel** - Frontend hosting and CDN
+- **CloudFlare** - DNS and additional CDN
+- **AWS S3** - File storage for images
 
-## 🚀 Getting Started
+## 📦 Installation
 
 ### Prerequisites
 - Node.js 20+
+- PostgreSQL 15+
 - Git
-- Cursor IDE (recommended)
 
-### Development Setup
+### Quick Start
 
-1. **Clone Repository**
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/tobylas-w/ThaiTable.git
-   cd ThaiTable
+   git clone https://github.com/your-username/thaitable.git
+   cd thaitable
    ```
 
-2. **Backend Setup**
+2. **Install dependencies**
    ```bash
+   # Install backend dependencies
    cd backend
    npm install
+
+   # Install frontend dependencies
+   cd ../frontend
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   # Backend environment
+   cd backend
    cp env.example .env
    # Edit .env with your database URL and JWT secret
-   npm run dev
+
+   # Frontend environment
+   cd ../frontend
+   cp .env.example .env
+   # Edit .env with your API base URL
    ```
 
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-4. **Database Setup** (when Railway is configured)
+4. **Database Setup**
    ```bash
    cd backend
    npx prisma generate
-   npx prisma migrate dev
+   npx prisma migrate dev --name init
+   npx prisma db seed
    ```
 
-## 🎯 Development Workflow
+5. **Start Development Servers**
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   npm run dev
 
-### AI-Assisted Development
-- **Cursor IDE**: Primary development environment
-- **Claude Integration**: Complex logic and architecture
-- **V0.dev**: UI component generation
-- **GitHub Copilot**: Code completion
+   # Terminal 2 - Frontend
+   cd frontend
+   npm run dev
+   ```
 
-### Daily Process
-1. **Morning Planning** (30 min) - Review progress, plan tasks
-2. **Development Sessions** (8 hours) - Backend API, Frontend UI, Integration
-3. **Evening Review** (30 min) - Commit changes, update docs
+6. **Access the Application**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:3000
+   - API Health: http://localhost:3000/health
 
-## 🌐 Live Previews
+## 🏗️ Project Structure
 
-- **GitHub Repository**: https://github.com/tobylas-w/ThaiTable
-- **Frontend Preview**: Coming soon (Vercel deployment)
-- **API Preview**: Coming soon (Railway deployment)
+```
+ThaiTable/
+├── backend/                 # Express.js API
+│   ├── src/
+│   │   ├── config/         # Environment & app config
+│   │   ├── middleware/     # Auth & validation middleware
+│   │   ├── routes/         # API route handlers
+│   │   └── index.ts        # Server entry point
+│   ├── prisma/             # Database schema & migrations
+│   └── package.json
+├── frontend/               # React + Vite app
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API service layer
+│   │   ├── i18n/          # Internationalization
+│   │   └── App.tsx        # Main app component
+│   └── package.json
+├── docs/                   # Documentation
+└── README.md
+```
 
-## 📊 Project Phases
+## 🔧 Development
 
-### Phase 1: Foundation (Weeks 1-3) ✅ 90% Complete
-- [x] Week 1: Infrastructure & Authentication
-- [x] Week 2: Menu Management & Order System
-- [ ] Week 3: Frontend Foundation & Mobile Testing
+### Available Scripts
 
-### Phase 2: Thai Localization (Weeks 4-5)
-- [ ] Week 4: Advanced Thai Localization
-- [ ] Week 5: Payment Integration (PromptPay, TrueMoney)
+#### Backend
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run format       # Format code with Prettier
+npm run migrate      # Run database migrations
+npm run seed         # Seed database with sample data
+```
 
-### Phase 3: Multi-Restaurant (Weeks 6-8)
-- [ ] Week 6: Multi-Tenancy Architecture
-- [ ] Week 7: Advanced Restaurant Operations
-- [ ] Week 8: Inventory Management System
+#### Frontend
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint errors
+```
 
-### Phase 4: Delivery Integration (Weeks 9-10)
-- [ ] Week 9: GrabFood, FoodPanda, LINE MAN APIs
-- [ ] Week 10: Advanced Delivery Management
+### Code Quality
 
-### Phase 5: Analytics & AI (Weeks 11-12)
-- [ ] Week 11: Advanced Analytics & Reporting
-- [ ] Week 12: AI-Powered Features
+The project uses:
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **TypeScript** - Type checking
+- **Husky** - Git hooks for pre-commit checks
 
-### Phase 6: Production (Weeks 13-14)
-- [ ] Week 13: Mobile Applications
-- [ ] Week 14: Production Readiness & Launch
+### Testing
 
-## 🔒 Security & Compliance
+```bash
+# Backend tests
+cd backend
+npm test
 
-- **PDPA Compliance**: Thai data protection laws
-- **Encryption**: Data at rest and in transit
-- **Access Control**: Role-based permissions
-- **Audit Logging**: All data access tracked
+# Frontend tests
+cd frontend
+npm test
+```
 
-## 🌍 Thai Market Features
+## 🌐 API Documentation
 
-- **Language Support**: Thai/English bilingual interface
-- **Payment Methods**: PromptPay, TrueMoney, SCB Easy
-- **Delivery Integration**: GrabFood, FoodPanda, LINE MAN
-- **Cultural UX**: Thai restaurant workflow optimization
-- **Local Compliance**: VAT, tax reporting, labor laws
+### Base URL
+- Development: `http://localhost:3000/api/v1`
+- Production: `https://api.thaitable.com/api/v1`
 
-## 📞 Support
+### Authentication
+All protected endpoints require a JWT token in the Authorization header:
+```
+Authorization: Bearer <your-jwt-token>
+```
 
-- **Documentation**: `/docs` folder
-- **GitHub Issues**: Bug reports and feature requests
-- **Email**: support@thaitable.com (future)
+### Core Endpoints
+
+#### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration
+- `POST /auth/refresh` - Refresh token
+
+#### Restaurants
+- `GET /restaurant/:id` - Get restaurant details
+- `POST /restaurant` - Create restaurant
+- `PUT /restaurant/:id` - Update restaurant
+- `GET /restaurant/:id/stats` - Get restaurant statistics
+
+#### Menu Management
+- `GET /menu/:restaurantId` - Get menu items
+- `POST /menu` - Create menu item
+- `PUT /menu/:id` - Update menu item
+- `DELETE /menu/:id` - Delete menu item
+
+#### Order Management
+- `GET /order/restaurant/:restaurantId` - Get orders
+- `POST /order` - Create order
+- `PATCH /order/:id/status` - Update order status
+- `GET /order/:id` - Get order details
+
+## 🚀 Deployment
+
+### Backend (Railway)
+1. Connect your GitHub repository to Railway
+2. Add PostgreSQL service
+3. Set environment variables
+4. Deploy automatically on push to main branch
+
+### Frontend (Vercel)
+1. Import GitHub repository to Vercel
+2. Configure build settings:
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+3. Set environment variables
+4. Deploy automatically on push to main branch
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+DATABASE_URL="postgresql://..."
+JWT_SECRET="your-super-secret-jwt-key"
+JWT_EXPIRES_IN="24h"
+PORT=3000
+NODE_ENV=production
+```
+
+#### Frontend (.env)
+```env
+VITE_API_BASE_URL="https://api.thaitable.com/api/v1"
+VITE_APP_NAME="ThaiTable"
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow TypeScript best practices
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation as needed
+- Follow the existing code style
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Email**: support@thaitable.com
+- **Documentation**: [docs.thaitable.com](https://docs.thaitable.com)
+- **Issues**: [GitHub Issues](https://github.com/your-username/thaitable/issues)
+
+## 🙏 Acknowledgments
+
+- Thai restaurant owners for feedback and requirements
+- Open source community for amazing tools and libraries
+- Thai developers for cultural insights and UX guidance
 
 ---
 
 **Made with ❤️ for Thai restaurants worldwide**
-
-*Last updated: August 29, 2024*

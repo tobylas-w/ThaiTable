@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { Edit, Plus, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Search, Filter, Edit, Trash2, Eye, EyeOff, MoreVertical } from 'lucide-react';
-import { menuService, MenuItem, CreateMenuItemData, MenuFilters, formatThaiCurrency, getSpiceLevelText, getSpiceLevelColor, getDietaryIcons } from '../services/menu';
-import { categoryService, MenuCategory } from '../services/categories';
+import { MenuCategory, categoryService } from '../services/categories';
+import { CreateMenuItemData, MenuFilters, MenuItem, formatThaiCurrency, getDietaryIcons, getSpiceLevelColor, getSpiceLevelText, menuService } from '../services/menu';
 
 const MenuManagement = () => {
   const { t, i18n } = useTranslation();
@@ -54,14 +54,9 @@ const MenuManagement = () => {
     }
   };
 
-  const handleUpdateItem = async (id: string, data: Partial<CreateMenuItemData>) => {
-    try {
-      await menuService.updateMenuItem(id, data);
-      setEditingItem(null);
-      loadData();
-    } catch (err) {
-      setError('เกิดข้อผิดพลาดในการอัปเดตเมนู');
-    }
+  const handleEditItem = (item: MenuItem) => {
+    setEditingItem(item);
+    setShowCreateModal(true);
   };
 
   const handleDeleteItem = async (id: string) => {
@@ -88,8 +83,8 @@ const MenuManagement = () => {
   };
 
   const toggleItemSelection = (id: string) => {
-    setSelectedItems(prev => 
-      prev.includes(id) 
+    setSelectedItems(prev =>
+      prev.includes(id)
         ? prev.filter(item => item !== id)
         : [...prev, id]
     );
@@ -202,7 +197,7 @@ const MenuManagement = () => {
               />
             </div>
           </div>
-          
+
           <select
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
             value={filters.category || ''}
@@ -219,9 +214,9 @@ const MenuManagement = () => {
           <select
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
             value={filters.available?.toString() || ''}
-            onChange={(e) => setFilters(prev => ({ 
-              ...prev, 
-              available: e.target.value === '' ? undefined : e.target.value === 'true' 
+            onChange={(e) => setFilters(prev => ({
+              ...prev,
+              available: e.target.value === '' ? undefined : e.target.value === 'true'
             }))}
           >
             <option value="">สถานะทั้งหมด</option>
@@ -341,18 +336,17 @@ const MenuManagement = () => {
                     {formatThaiCurrency(item.price_thb)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      item.is_available
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.is_available
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {item.is_available ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setEditingItem(item)}
+                        onClick={() => handleEditItem(item)}
                         className="text-yellow-600 hover:text-yellow-900"
                       >
                         <Edit className="h-4 w-4" />
@@ -388,7 +382,7 @@ const MenuManagement = () => {
             setShowCreateModal(false);
             setEditingItem(null);
           }}
-          onSubmit={editingItem ? handleUpdateItem : handleCreateItem}
+          onSubmit={handleCreateItem}
         />
       )}
     </div>
@@ -401,11 +395,11 @@ interface MenuFormModalProps {
   categories: MenuCategory[];
   restaurantId: string;
   onClose: () => void;
-  onSubmit: (id: string, data: CreateMenuItemData) => Promise<void> | ((data: CreateMenuItemData) => Promise<void>);
+  onSubmit: (data: CreateMenuItemData) => Promise<void>;
 }
 
 const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaurantId, onClose, onSubmit }) => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const [formData, setFormData] = useState<CreateMenuItemData>({
     restaurant_id: restaurantId,
     name_th: item?.name_th || '',
@@ -429,11 +423,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (item) {
-      await onSubmit(item.id, formData);
-    } else {
-      await (onSubmit as (data: CreateMenuItemData) => Promise<void>)(formData);
-    }
+    await onSubmit(formData);
   };
 
   return (
@@ -443,7 +433,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             {item ? 'แก้ไขเมนู' : 'เพิ่มเมนูใหม่'}
           </h3>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -456,7 +446,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                   onChange={(e) => setFormData(prev => ({ ...prev, name_th: e.target.value }))}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">ชื่อเมนู (อังกฤษ)</label>
                 <input
@@ -485,7 +475,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">ราคา (บาท)</label>
                 <input
@@ -516,7 +506,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                   <option value="5">เผ็ดมากที่สุด</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">เวลาปรุง (นาที)</label>
                 <input
@@ -559,7 +549,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                 />
                 <span className="ml-2 text-sm text-gray-700">มังสวิรัติ</span>
               </label>
-              
+
               <label className="flex items-center">
                 <input
                   type="checkbox"
@@ -569,7 +559,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                 />
                 <span className="ml-2 text-sm text-gray-700">วีแกน</span>
               </label>
-              
+
               <label className="flex items-center">
                 <input
                   type="checkbox"
@@ -579,7 +569,7 @@ const MenuFormModal: React.FC<MenuFormModalProps> = ({ item, categories, restaur
                 />
                 <span className="ml-2 text-sm text-gray-700">ฮาลาล</span>
               </label>
-              
+
               <label className="flex items-center">
                 <input
                   type="checkbox"
