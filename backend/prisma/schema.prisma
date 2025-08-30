@@ -3,179 +3,152 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Restaurant {
-  id          String   @id @default(uuid())
-  name_th     String
-  name_en     String
-  address_th  String
-  address_en  String
-  tax_id      String   @unique
-  phone       String?
-  email       String?
-  website     String?
-  business_hours Json?  // Store as JSON for flexible hours
-  cuisine_type String?  // Thai, Fusion, etc.
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]
-  menus       Menu[]
-  orders      Order[]
-  tables      Table[]
-  categories  MenuCategory[]
+  id             String         @id @default(uuid())
+  name_th        String
+  name_en        String
+  address_th     String
+  address_en     String
+  tax_id         String         @unique
+  phone          String?
+  email          String?
+  website        String?
+  business_hours String? // Store as JSON string for flexible hours
+  cuisine_type   String? // Thai, Fusion, etc.
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  users          User[]
+  menus          Menu[]
+  orders         Order[]
+  tables         Table[]
+  categories     MenuCategory[]
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
   password      String
-  role          Role
+  role          String
   name_th       String
   name_en       String
   phone         String?
   restaurant_id String
   restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
   orders        Order[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
-enum Role {
-  OWNER
-  MANAGER
-  STAFF
-  ADMIN
-}
+// Role enum values as strings
+// OWNER, MANAGER, STAFF, ADMIN
 
 model MenuCategory {
-  id            String   @id @default(uuid())
-  restaurant_id String
-  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
-  name_th       String
-  name_en       String
+  id             String     @id @default(uuid())
+  restaurant_id  String
+  restaurant     Restaurant @relation(fields: [restaurant_id], references: [id])
+  name_th        String
+  name_en        String
   description_th String?
   description_en String?
-  sort_order    Int      @default(0)
-  is_active     Boolean  @default(true)
-  menus         Menu[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  sort_order     Int        @default(0)
+  is_active      Boolean    @default(true)
+  menus          Menu[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model Menu {
-  id              String        @id @default(uuid())
-  restaurant_id   String
-  restaurant      Restaurant    @relation(fields: [restaurant_id], references: [id])
-  category_id     String?
-  category        MenuCategory? @relation(fields: [category_id], references: [id])
-  name_th         String
-  name_en         String
-  description_th  String?
-  description_en  String?
-  price_thb       Decimal       @db.Decimal(10,2)
-  cost_thb        Decimal?      @db.Decimal(10,2)  // Cost for profit calculation
-  spice_level     Int?          // 1-5 scale for Thai spiciness
-  preparation_time Int?         // Minutes
-  is_vegetarian   Boolean       @default(false)
-  is_vegan        Boolean       @default(false)
-  is_halal        Boolean       @default(false)
-  is_gluten_free  Boolean       @default(false)
-  is_available    Boolean       @default(true)
-  image_url       String?
-  sort_order      Int           @default(0)
-  allergens       String[]      // Array of allergen names
-  nutritional_info Json?        // Store nutritional data as JSON
-  order_items     OrderItem[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(uuid())
+  restaurant_id    String
+  restaurant       Restaurant    @relation(fields: [restaurant_id], references: [id])
+  category_id      String?
+  category         MenuCategory? @relation(fields: [category_id], references: [id])
+  name_th          String
+  name_en          String
+  description_th   String?
+  description_en   String?
+  price_thb        Float
+  cost_thb         Float? // Cost for profit calculation
+  spice_level      Int? // 1-5 scale for Thai spiciness
+  preparation_time Int? // Minutes
+  is_vegetarian    Boolean       @default(false)
+  is_vegan         Boolean       @default(false)
+  is_halal         Boolean       @default(false)
+  is_gluten_free   Boolean       @default(false)
+  is_available     Boolean       @default(true)
+  image_url        String?
+  sort_order       Int           @default(0)
+  allergens        String // Comma-separated allergen names
+  nutritional_info String? // Store nutritional data as JSON string
+  order_items      OrderItem[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 model Table {
-  id            String   @id @default(uuid())
+  id            String     @id @default(uuid())
   restaurant_id String
   restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
   table_number  String
   capacity      Int
-  status        TableStatus @default(AVAILABLE)
-  location_x    Int?      // For floor plan positioning
-  location_y    Int?      // For floor plan positioning
+  status        String     @default("AVAILABLE")
+  location_x    Int? // For floor plan positioning
+  location_y    Int? // For floor plan positioning
   orders        Order[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
-enum TableStatus {
-  AVAILABLE
-  OCCUPIED
-  RESERVED
-  CLEANING
-  OUT_OF_SERVICE
-}
+// TableStatus enum values as strings
+// AVAILABLE, OCCUPIED, RESERVED, CLEANING, OUT_OF_SERVICE
 
 model Order {
-  id            String      @id @default(uuid())
-  table_id      String?
-  table         Table?      @relation(fields: [table_id], references: [id])
-  user_id       String
-  user          User        @relation(fields: [user_id], references: [id])
-  restaurant_id String
-  restaurant    Restaurant  @relation(fields: [restaurant_id], references: [id])
-  order_number  String      @unique // Restaurant-specific order number
-  customer_name String?
-  customer_phone String?
-  subtotal_thb  Decimal     @db.Decimal(10,2)
-  tax_thb       Decimal     @db.Decimal(10,2) @default(0)
-  service_charge_thb Decimal @db.Decimal(10,2) @default(0)
-  total_thb     Decimal     @db.Decimal(10,2)
-  payment_method PaymentMethod?
-  payment_status PaymentStatus @default(PENDING)
-  status        OrderStatus @default(PENDING)
-  notes         String?     // Special instructions in Thai/English
-  order_items   OrderItem[]
-  created_at    DateTime    @default(now())
-  updated_at    DateTime    @updatedAt
+  id                 String      @id @default(uuid())
+  table_id           String?
+  table              Table?      @relation(fields: [table_id], references: [id])
+  user_id            String
+  user               User        @relation(fields: [user_id], references: [id])
+  restaurant_id      String
+  restaurant         Restaurant  @relation(fields: [restaurant_id], references: [id])
+  order_number       String      @unique // Restaurant-specific order number
+  customer_name      String?
+  customer_phone     String?
+  subtotal_thb       Float
+  tax_thb            Float       @default(0)
+  service_charge_thb Float       @default(0)
+  total_thb          Float
+  payment_method     String?
+  payment_status     String      @default("PENDING")
+  status             String      @default("PENDING")
+  notes              String? // Special instructions in Thai/English
+  order_items        OrderItem[]
+  created_at         DateTime    @default(now())
+  updated_at         DateTime    @updatedAt
 }
 
 model OrderItem {
-  id          String   @id @default(uuid())
-  order_id    String
-  order       Order    @relation(fields: [order_id], references: [id])
-  menu_id     String
-  menu        Menu     @relation(fields: [menu_id], references: [id])
-  quantity    Int
-  unit_price_thb Decimal @db.Decimal(10,2)
-  total_price_thb Decimal @db.Decimal(10,2)
-  notes       String?  // Item-specific notes
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  order_id        String
+  order           Order    @relation(fields: [order_id], references: [id])
+  menu_id         String
+  menu            Menu     @relation(fields: [menu_id], references: [id])
+  quantity        Int
+  unit_price_thb  Float
+  total_price_thb Float
+  notes           String? // Item-specific notes
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  COOKING
-  READY
-  SERVED
-  PAID
-  CANCELLED
-}
+// OrderStatus enum values as strings
+// PENDING, CONFIRMED, COOKING, READY, SERVED, PAID, CANCELLED
 
-enum PaymentMethod {
-  CASH
-  PROMPTPAY
-  TRUEMONEY
-  SCB_EASY
-  CREDIT_CARD
-  LINE_PAY
-  AIRPAY
-}
+// PaymentMethod enum values as strings
+// CASH, PROMPTPAY, TRUEMONEY, SCB_EASY, CREDIT_CARD, LINE_PAY, AIRPAY
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
+// PaymentStatus enum values as strings
+// PENDING, PAID, FAILED, REFUNDED

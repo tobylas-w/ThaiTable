@@ -2,74 +2,225 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const express_1 = require("express");
+const zod_1 = require("zod");
 const router = (0, express_1.Router)();
 const prisma = new client_1.PrismaClient();
-// Get all orders for a restaurant
+// Validation schemas
+const createOrderSchema = zod_1.z.object({
+    table_id: zod_1.z.string().uuid().optional(),
+    user_id: zod_1.z.string().uuid(),
+    restaurant_id: zod_1.z.string().uuid(),
+    customer_name: zod_1.z.string().optional(),
+    customer_phone: zod_1.z.string().optional(),
+    notes: zod_1.z.string().optional(),
+    order_items: zod_1.z.array(zod_1.z.object({
+        menu_id: zod_1.z.string().uuid(),
+        quantity: zod_1.z.number().positive(),
+        unit_price_thb: zod_1.z.number().positive(),
+        notes: zod_1.z.string().optional()
+    })).min(1, 'Order must have at least one item'),
+    payment_method: zod_1.z.enum(['CASH', 'PROMPTPAY', 'TRUEMONEY', 'SCB_EASY', 'CREDIT_CARD', 'LINE_PAY', 'AIRPAY']).optional(),
+    service_charge_percentage: zod_1.z.number().min(0).max(20).default(10), // 10% default service charge
+    tax_rate: zod_1.z.number().min(0).max(20).default(7) // 7% VAT default
+});
+const updateOrderSchema = createOrderSchema.partial().omit({ restaurant_id: true });
+// Get all orders for a restaurant with comprehensive filtering
 router.get('/restaurant/:restaurantId', async (req, res) => {
     try {
         const { restaurantId } = req.params;
-        const { status } = req.query;
+        const { status, payment_status, date_from, date_to, table_id, customer_name, limit = '50', page = '1' } = req.query;
         const where = { restaurant_id: restaurantId };
+        // Status filter
         if (status) {
             where.status = status;
         }
-        const orders = await prisma.order.findMany({
-            where,
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
+        // Payment status filter
+        if (payment_status) {
+            where.payment_status = payment_status;
+        }
+        // Date range filter
+        if (date_from || date_to) {
+            where.created_at = {};
+            if (date_from) {
+                where.created_at.gte = new Date(date_from);
+            }
+            if (date_to) {
+                where.created_at.lte = new Date(date_to);
+            }
+        }
+        // Table filter
+        if (table_id) {
+            where.table_id = table_id;
+        }
+        // Customer name search
+        if (customer_name) {
+            where.customer_name = {
+                contains: customer_name,
+                mode: 'insensitive'
+            };
+        }
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+        const [orders, totalCount] = await Promise.all([
+            prisma.order.findMany({
+                where,
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name_th: true,
+                            name_en: true
+                        }
+                    },
+                    table: {
+                        select: {
+                            id: true,
+                            table_number: true,
+                            capacity: true
+                        }
+                    },
+                    order_items: {
+                        include: {
+                            menu: {
+                                select: {
+                                    id: true,
+                                    name_th: true,
+                                    name_en: true,
+                                    price_thb: true
+                                }
+                            }
+                        }
+                    },
+                    _count: {
+                        select: {
+                            order_items: true
+                        }
                     }
-                }
-            },
-            orderBy: { created_at: 'desc' }
+                },
+                orderBy: { created_at: 'desc' },
+                skip,
+                take: limitNum
+            }),
+            prisma.order.count({ where })
+        ]);
+        res.json({
+            success: true,
+            data: orders,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total: totalCount,
+                pages: Math.ceil(totalCount / limitNum)
+            }
         });
-        res.json(orders);
     }
     catch (error) {
         console.error('Get orders error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลออเดอร์'
+        });
     }
 });
-// Create new order
+// Create new order with comprehensive validation
 router.post('/', async (req, res) => {
     try {
-        const { table_id, user_id, restaurant_id, total_thb, status = 'PENDING' } = req.body;
-        const order = await prisma.order.create({
-            data: {
-                table_id,
-                user_id,
-                restaurant_id,
-                total_thb: parseFloat(total_thb),
-                status
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
-                    }
+        const validatedData = createOrderSchema.parse(req.body);
+        // Calculate totals
+        const subtotal = validatedData.order_items.reduce((sum, item) => {
+            return sum + (item.unit_price_thb * item.quantity);
+        }, 0);
+        const serviceCharge = (subtotal * validatedData.service_charge_percentage) / 100;
+        const tax = (subtotal * validatedData.tax_rate) / 100;
+        const total = subtotal + serviceCharge + tax;
+        // Generate order number (Thai restaurant format: YYYYMMDD-XXX)
+        const today = new Date();
+        const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+        const orderCount = await prisma.order.count({
+            where: {
+                restaurant_id: validatedData.restaurant_id,
+                created_at: {
+                    gte: new Date(today.getFullYear(), today.getMonth(), today.getDate())
                 }
             }
         });
-        res.status(201).json(order);
+        const orderNumber = `${dateStr}-${String(orderCount + 1).padStart(3, '0')}`;
+        // Create order with transaction
+        const order = await prisma.$transaction(async (tx) => {
+            // Create the order
+            const newOrder = await tx.order.create({
+                data: {
+                    table_id: validatedData.table_id,
+                    user_id: validatedData.user_id,
+                    restaurant_id: validatedData.restaurant_id,
+                    order_number: orderNumber,
+                    customer_name: validatedData.customer_name,
+                    customer_phone: validatedData.customer_phone,
+                    subtotal_thb: subtotal,
+                    tax_thb: tax,
+                    service_charge_thb: serviceCharge,
+                    total_thb: total,
+                    payment_method: validatedData.payment_method,
+                    notes: validatedData.notes,
+                    status: 'PENDING',
+                    payment_status: 'PENDING'
+                }
+            });
+            // Create order items
+            const orderItems = await Promise.all(validatedData.order_items.map(item => tx.orderItem.create({
+                data: {
+                    order_id: newOrder.id,
+                    menu_id: item.menu_id,
+                    quantity: item.quantity,
+                    unit_price_thb: item.unit_price_thb,
+                    total_price_thb: item.unit_price_thb * item.quantity,
+                    notes: item.notes
+                }
+            })));
+            return { ...newOrder, order_items: orderItems };
+        });
+        res.status(201).json({
+            success: true,
+            message: 'สร้างออเดอร์สำเร็จ',
+            data: order
+        });
     }
     catch (error) {
+        if (error instanceof zod_1.z.ZodError) {
+            return res.status(400).json({
+                success: false,
+                message: 'ข้อมูลไม่ถูกต้อง',
+                errors: error.errors
+            });
+        }
         console.error('Create order error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการสร้างออเดอร์'
+        });
     }
 });
-// Update order status
+// Update order status with validation
 router.patch('/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
+        // Validate status
+        const validStatuses = ['PENDING', 'CONFIRMED', 'COOKING', 'READY', 'SERVED', 'PAID', 'CANCELLED'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'สถานะออเดอร์ไม่ถูกต้อง'
+            });
+        }
         const order = await prisma.order.update({
             where: { id },
-            data: { status },
+            data: {
+                status,
+                // Auto-update payment status when order is paid
+                payment_status: status === 'PAID' ? 'PAID' : undefined
+            },
             include: {
                 user: {
                     select: {
@@ -77,17 +228,104 @@ router.patch('/:id/status', async (req, res) => {
                         name_th: true,
                         name_en: true
                     }
+                },
+                table: {
+                    select: {
+                        id: true,
+                        table_number: true,
+                        capacity: true
+                    }
+                },
+                order_items: {
+                    include: {
+                        menu: {
+                            select: {
+                                id: true,
+                                name_th: true,
+                                name_en: true,
+                                price_thb: true
+                            }
+                        }
+                    }
                 }
             }
         });
-        res.json(order);
+        res.json({
+            success: true,
+            message: 'อัปเดตสถานะออเดอร์สำเร็จ',
+            data: order
+        });
     }
     catch (error) {
         console.error('Update order status error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะออเดอร์'
+        });
     }
 });
-// Get order by ID
+// Update payment status
+router.patch('/:id/payment', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { payment_status, payment_method } = req.body;
+        const validPaymentStatuses = ['PENDING', 'PAID', 'FAILED', 'REFUNDED'];
+        if (!validPaymentStatuses.includes(payment_status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'สถานะการชำระเงินไม่ถูกต้อง'
+            });
+        }
+        const order = await prisma.order.update({
+            where: { id },
+            data: {
+                payment_status,
+                payment_method: payment_method || undefined
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name_th: true,
+                        name_en: true
+                    }
+                },
+                table: {
+                    select: {
+                        id: true,
+                        table_number: true,
+                        capacity: true
+                    }
+                },
+                order_items: {
+                    include: {
+                        menu: {
+                            select: {
+                                id: true,
+                                name_th: true,
+                                name_en: true,
+                                price_thb: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        res.json({
+            success: true,
+            message: 'อัปเดตสถานะการชำระเงินสำเร็จ',
+            data: order
+        });
+    }
+    catch (error) {
+        console.error('Update payment status error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะการชำระเงิน'
+        });
+    }
+});
+// Get order by ID with full details
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -100,17 +338,156 @@ router.get('/:id', async (req, res) => {
                         name_th: true,
                         name_en: true
                     }
+                },
+                table: {
+                    select: {
+                        id: true,
+                        table_number: true,
+                        capacity: true,
+                        status: true
+                    }
+                },
+                order_items: {
+                    include: {
+                        menu: {
+                            select: {
+                                id: true,
+                                name_th: true,
+                                name_en: true,
+                                price_thb: true,
+                                image_url: true
+                            }
+                        }
+                    }
                 }
             }
         });
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(404).json({
+                success: false,
+                message: 'ไม่พบออเดอร์นี้'
+            });
         }
-        res.json(order);
+        res.json({
+            success: true,
+            data: order
+        });
     }
     catch (error) {
         console.error('Get order error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลออเดอร์'
+        });
+    }
+});
+// Cancel order
+router.patch('/:id/cancel', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+        const order = await prisma.order.update({
+            where: { id },
+            data: {
+                status: 'CANCELLED',
+                notes: reason ? `${order?.notes || ''}\n[ยกเลิก]: ${reason}` : order?.notes
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name_th: true,
+                        name_en: true
+                    }
+                },
+                table: {
+                    select: {
+                        id: true,
+                        table_number: true,
+                        capacity: true
+                    }
+                },
+                order_items: {
+                    include: {
+                        menu: {
+                            select: {
+                                id: true,
+                                name_th: true,
+                                name_en: true,
+                                price_thb: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        res.json({
+            success: true,
+            message: 'ยกเลิกออเดอร์สำเร็จ',
+            data: order
+        });
+    }
+    catch (error) {
+        console.error('Cancel order error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการยกเลิกออเดอร์'
+        });
+    }
+});
+// Get order statistics for dashboard
+router.get('/restaurant/:restaurantId/stats', async (req, res) => {
+    try {
+        const { restaurantId } = req.params;
+        const { date_from, date_to } = req.query;
+        const where = { restaurant_id: restaurantId };
+        if (date_from || date_to) {
+            where.created_at = {};
+            if (date_from) {
+                where.created_at.gte = new Date(date_from);
+            }
+            if (date_to) {
+                where.created_at.lte = new Date(date_to);
+            }
+        }
+        const [totalOrders, totalRevenue, pendingOrders, completedOrders, cancelledOrders, averageOrderValue] = await Promise.all([
+            prisma.order.count({ where }),
+            prisma.order.aggregate({
+                where: { ...where, status: { not: 'CANCELLED' } },
+                _sum: { total_thb: true }
+            }),
+            prisma.order.count({
+                where: { ...where, status: { in: ['PENDING', 'CONFIRMED', 'COOKING'] } }
+            }),
+            prisma.order.count({
+                where: { ...where, status: 'PAID' }
+            }),
+            prisma.order.count({
+                where: { ...where, status: 'CANCELLED' }
+            }),
+            prisma.order.aggregate({
+                where: { ...where, status: { not: 'CANCELLED' } },
+                _avg: { total_thb: true }
+            })
+        ]);
+        res.json({
+            success: true,
+            data: {
+                total_orders: totalOrders,
+                total_revenue: totalRevenue._sum.total_thb || 0,
+                pending_orders: pendingOrders,
+                completed_orders: completedOrders,
+                cancelled_orders: cancelledOrders,
+                average_order_value: averageOrderValue._avg.total_thb || 0
+            }
+        });
+    }
+    catch (error) {
+        console.error('Get order stats error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการดึงสถิติออเดอร์'
+        });
     }
 });
 exports.default = router;
