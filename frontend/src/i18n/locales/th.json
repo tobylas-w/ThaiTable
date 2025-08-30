@@ -1,0 +1,191 @@
+{
+  "common": {
+    "loading": "กำลังโหลด...",
+    "error": "ข้อผิดพลาด",
+    "success": "สำเร็จ",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "add": "เพิ่ม",
+    "search": "ค้นหา",
+    "filter": "กรอง",
+    "clear": "ล้าง",
+    "back": "กลับ",
+    "next": "ถัดไป",
+    "previous": "ก่อนหน้า",
+    "submit": "ส่ง",
+    "close": "ปิด",
+    "confirm": "ยืนยัน",
+    "yes": "ใช่",
+    "no": "ไม่"
+  },
+  "navigation": {
+    "dashboard": "แดชบอร์ด",
+    "menu": "จัดการเมนู",
+    "orders": "จัดการออเดอร์",
+    "restaurants": "ร้านอาหาร",
+    "users": "ผู้ใช้",
+    "reports": "รายงาน",
+    "settings": "ตั้งค่า",
+    "logout": "ออกจากระบบ"
+  },
+  "auth": {
+    "login": "เข้าสู่ระบบ",
+    "register": "ลงทะเบียน",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "confirmPassword": "ยืนยันรหัสผ่าน",
+    "forgotPassword": "ลืมรหัสผ่าน?",
+    "loginSuccess": "เข้าสู่ระบบสำเร็จ",
+    "loginError": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    "registerSuccess": "ลงทะเบียนสำเร็จ",
+    "registerError": "ลงทะเบียนล้มเหลว"
+  },
+  "dashboard": {
+    "title": "แดชบอร์ด",
+    "welcome": "ยินดีต้อนรับสู่ ThaiTable",
+    "todayOrders": "ออเดอร์วันนี้",
+    "todayRevenue": "รายได้วันนี้",
+    "totalMenuItems": "รายการเมนูทั้งหมด",
+    "activeUsers": "ผู้ใช้ที่ใช้งาน",
+    "recentOrders": "ออเดอร์ล่าสุด",
+    "popularItems": "เมนูยอดนิยม",
+    "quickActions": "การดำเนินการด่วน",
+    "newOrder": "ออเดอร์ใหม่",
+    "addMenuItem": "เพิ่มเมนู",
+    "viewReports": "ดูรายงาน"
+  },
+  "menu": {
+    "title": "จัดการเมนู",
+    "subtitle": "จัดการเมนูของร้านอาหาร",
+    "addItem": "เพิ่มเมนู",
+    "editItem": "แก้ไขเมนู",
+    "itemName": "ชื่อเมนู",
+    "itemNameEn": "ชื่อเมนู (ภาษาอังกฤษ)",
+    "itemNameTh": "ชื่อเมนู (ไทย)",
+    "price": "ราคา (บาท)",
+    "cost": "ต้นทุน (บาท)",
+    "category": "หมวดหมู่",
+    "spiceLevel": "ระดับความเผ็ด",
+    "description": "รายละเอียด",
+    "descriptionTh": "คำอธิบาย (ไทย)",
+    "descriptionEn": "คำอธิบาย (อังกฤษ)",
+    "image": "รูปภาพ",
+    "imageUrl": "URL รูปภาพ",
+    "available": "เปิดใช้งาน",
+    "unavailable": "ปิดใช้งาน",
+    "preparationTime": "เวลาปรุง (นาที)",
+    "sortOrder": "ลำดับการแสดง",
+    "allergens": "สารก่อภูมิแพ้",
+    "nutritionalInfo": "ข้อมูลโภชนาการ",
+    "dietary": {
+      "vegetarian": "มังสวิรัติ",
+      "vegan": "วีแกน",
+      "halal": "ฮาลาล",
+      "glutenFree": "ไม่มีกลูเตน"
+    },
+    "categories": {
+      "title": "หมวดหมู่",
+      "addCategory": "เพิ่มหมวดหมู่",
+      "editCategory": "แก้ไขหมวดหมู่",
+      "nameTh": "ชื่อหมวดหมู่ (ไทย)",
+      "nameEn": "ชื่อหมวดหมู่ (อังกฤษ)",
+      "descriptionTh": "คำอธิบาย (ไทย)",
+      "descriptionEn": "คำอธิบาย (อังกฤษ)",
+      "sortOrder": "ลำดับการแสดง",
+      "isActive": "เปิดใช้งาน",
+      "appetizers": "อาหารเรียกน้ำย่อย",
+      "mainDishes": "อาหารจานหลัก",
+      "desserts": "ของหวาน",
+      "beverages": "เครื่องดื่ม",
+      "sides": "เครื่องเคียง"
+    },
+    "spiceLevels": {
+      "0": "ไม่ระบุ",
+      "1": "ไม่เผ็ด",
+      "2": "เผ็ดน้อย",
+      "3": "เผ็ดปานกลาง",
+      "4": "เผ็ดมาก",
+      "5": "เผ็ดมากที่สุด"
+    },
+    "stats": {
+      "total": "เมนูทั้งหมด",
+      "available": "เปิดใช้งาน",
+      "unavailable": "ปิดใช้งาน"
+    },
+    "filters": {
+      "search": "ค้นหาเมนู...",
+      "allCategories": "ทุกหมวดหมู่",
+      "allStatus": "สถานะทั้งหมด",
+      "available": "เปิดใช้งาน",
+      "unavailable": "ปิดใช้งาน"
+    },
+    "actions": {
+      "bulkEnable": "เปิดใช้งาน",
+      "bulkDisable": "ปิดใช้งาน",
+      "delete": "ลบเมนู",
+      "edit": "แก้ไขเมนู",
+      "view": "ดูรายละเอียด"
+    },
+    "messages": {
+      "createSuccess": "เพิ่มเมนูสำเร็จ",
+      "updateSuccess": "อัปเดตเมนูสำเร็จ",
+      "deleteSuccess": "ลบเมนูสำเร็จ",
+      "bulkUpdateSuccess": "อัปเดตสถานะเมนูสำเร็จ",
+      "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบเมนูนี้?",
+      "loadError": "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+      "createError": "เกิดข้อผิดพลาดในการเพิ่มเมนู",
+      "updateError": "เกิดข้อผิดพลาดในการอัปเดตเมนู",
+      "deleteError": "เกิดข้อผิดพลาดในการลบเมนู",
+      "bulkUpdateError": "เกิดข้อผิดพลาดในการอัปเดตสถานะเมนู"
+    }
+  },
+  "orders": {
+    "title": "จัดการออเดอร์",
+    "newOrder": "ออเดอร์ใหม่",
+    "orderNumber": "ออเดอร์ #",
+    "tableNumber": "โต๊ะ",
+    "customerName": "ชื่อลูกค้า",
+    "items": "รายการ",
+    "quantity": "จำนวน",
+    "price": "ราคา",
+    "total": "รวม",
+    "status": "สถานะ",
+    "createdAt": "สร้างเมื่อ",
+    "actions": "การดำเนินการ",
+    "statuses": {
+      "pending": "รอดำเนินการ",
+      "cooking": "กำลังปรุง",
+      "served": "เสิร์ฟแล้ว",
+      "paid": "ชำระแล้ว",
+      "cancelled": "ยกเลิก"
+    }
+  },
+  "restaurant": {
+    "title": "ตั้งค่าร้านอาหาร",
+    "restaurantName": "ชื่อร้านอาหาร",
+    "restaurantNameEn": "ชื่อร้านอาหาร (ภาษาอังกฤษ)",
+    "restaurantNameTh": "ชื่อร้านอาหาร (ไทย)",
+    "address": "ที่อยู่",
+    "addressEn": "ที่อยู่ (ภาษาอังกฤษ)",
+    "addressTh": "ที่อยู่ (ไทย)",
+    "taxId": "เลขประจำตัวผู้เสียภาษี",
+    "phone": "เบอร์โทรศัพท์",
+    "email": "อีเมล",
+    "openingHours": "เวลาทำการ",
+    "cuisineType": "ประเภทอาหาร"
+  },
+  "currency": {
+    "thb": "บาท",
+    "format": "{{amount}} บาท"
+  },
+  "validation": {
+    "required": "กรุณากรอกข้อมูลนี้",
+    "email": "กรุณากรอกอีเมลที่ถูกต้อง",
+    "minLength": "ต้องมีอย่างน้อย {{min}} ตัวอักษร",
+    "maxLength": "ต้องมีไม่เกิน {{max}} ตัวอักษร",
+    "passwordMatch": "รหัสผ่านไม่ตรงกัน",
+    "positiveNumber": "กรุณากรอกตัวเลขที่เป็นบวก"
+  }
+}

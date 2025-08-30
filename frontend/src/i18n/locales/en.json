@@ -1,0 +1,136 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "menu": "Menu Management",
+    "orders": "Order Management",
+    "restaurants": "Restaurants",
+    "users": "Users",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "loginSuccess": "Login successful",
+    "loginError": "Invalid email or password",
+    "registerSuccess": "Registration successful",
+    "registerError": "Registration failed"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to ThaiTable",
+    "todayOrders": "Today's Orders",
+    "todayRevenue": "Today's Revenue",
+    "totalMenuItems": "Total Menu Items",
+    "activeUsers": "Active Users",
+    "recentOrders": "Recent Orders",
+    "popularItems": "Popular Items",
+    "quickActions": "Quick Actions",
+    "newOrder": "New Order",
+    "addMenuItem": "Add Menu Item",
+    "viewReports": "View Reports"
+  },
+  "menu": {
+    "title": "Menu Management",
+    "addItem": "Add Menu Item",
+    "editItem": "Edit Menu Item",
+    "itemName": "Item Name",
+    "itemNameEn": "Item Name (English)",
+    "itemNameTh": "Item Name (Thai)",
+    "price": "Price (THB)",
+    "category": "Category",
+    "spiceLevel": "Spice Level",
+    "description": "Description",
+    "image": "Image",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "categories": {
+      "appetizers": "Appetizers",
+      "mainDishes": "Main Dishes",
+      "desserts": "Desserts",
+      "beverages": "Beverages",
+      "sides": "Side Dishes"
+    },
+    "spiceLevels": {
+      "0": "No Spice",
+      "1": "Mild",
+      "2": "Medium",
+      "3": "Hot",
+      "4": "Very Hot",
+      "5": "Extreme"
+    }
+  },
+  "orders": {
+    "title": "Order Management",
+    "newOrder": "New Order",
+    "orderNumber": "Order #",
+    "tableNumber": "Table",
+    "customerName": "Customer Name",
+    "items": "Items",
+    "quantity": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "status": "Status",
+    "createdAt": "Created",
+    "actions": "Actions",
+    "statuses": {
+      "pending": "Pending",
+      "cooking": "Cooking",
+      "served": "Served",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    }
+  },
+  "restaurant": {
+    "title": "Restaurant Setup",
+    "restaurantName": "Restaurant Name",
+    "restaurantNameEn": "Restaurant Name (English)",
+    "restaurantNameTh": "Restaurant Name (Thai)",
+    "address": "Address",
+    "addressEn": "Address (English)",
+    "addressTh": "Address (Thai)",
+    "taxId": "Tax ID",
+    "phone": "Phone",
+    "email": "Email",
+    "openingHours": "Opening Hours",
+    "cuisineType": "Cuisine Type"
+  },
+  "currency": {
+    "thb": "THB",
+    "format": "{{amount}} THB"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email",
+    "minLength": "Minimum {{min}} characters required",
+    "maxLength": "Maximum {{max}} characters allowed",
+    "passwordMatch": "Passwords must match",
+    "positiveNumber": "Please enter a positive number"
+  }
+}
