@@ -3,7 +3,6 @@ import {
   Calendar,
   ChefHat,
   Clock,
-  DollarSign,
   Eye,
   Fire,
   MapPin,
@@ -26,7 +25,7 @@ const Dashboard = () => {
   const { t } = useTranslation()
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [currentTime, setCurrentTime] = useState(new Date())
-  
+
   // Enhanced restaurant data with realistic kitchen operations
   const [dashboardData, setDashboardData] = useState({
     todayOrders: 43,
@@ -47,48 +46,48 @@ const Dashboard = () => {
 
   // Real-time kitchen queue with detailed order progression
   const [kitchenQueue, setKitchenQueue] = useState([
-    { 
-      id: '#047', 
-      table: 'A3', 
-      items: ['Pad Thai', 'Tom Yum', 'Mango Rice'], 
-      total: '฿680', 
-      status: 'prep', 
+    {
+      id: '#047',
+      table: 'A3',
+      items: ['Pad Thai', 'Tom Yum', 'Mango Rice'],
+      total: '฿680',
+      status: 'prep',
       priority: 'high',
       timeInQueue: '2m',
       estimatedCompletion: '8m',
       chef: 'Somchai',
       specialRequests: 'Extra spicy, no peanuts'
     },
-    { 
-      id: '#048', 
-      table: 'B1', 
-      items: ['Green Curry', 'Jasmine Rice'], 
-      total: '฿320', 
-      status: 'cooking', 
+    {
+      id: '#048',
+      table: 'B1',
+      items: ['Green Curry', 'Jasmine Rice'],
+      total: '฿320',
+      status: 'cooking',
       priority: 'normal',
       timeInQueue: '12m',
       estimatedCompletion: '3m',
       chef: 'Niran',
       specialRequests: null
     },
-    { 
-      id: '#049', 
-      table: 'C2', 
-      items: ['Massaman Curry', 'Pad See Ew', 'Thai Tea'], 
-      total: '฿580', 
-      status: 'plating', 
+    {
+      id: '#049',
+      table: 'C2',
+      items: ['Massaman Curry', 'Pad See Ew', 'Thai Tea'],
+      total: '฿580',
+      status: 'plating',
       priority: 'normal',
       timeInQueue: '18m',
       estimatedCompletion: '1m',
       chef: 'Apinya',
       specialRequests: 'Medium spice level'
     },
-    { 
-      id: '#050', 
-      table: 'A1', 
-      items: ['Som Tam', 'Grilled Fish'], 
-      total: '฿450', 
-      status: 'ready', 
+    {
+      id: '#050',
+      table: 'A1',
+      items: ['Som Tam', 'Grilled Fish'],
+      total: '฿450',
+      status: 'ready',
       priority: 'urgent',
       timeInQueue: '22m',
       estimatedCompletion: 'Ready!',
@@ -119,7 +118,7 @@ const Dashboard = () => {
       color: 'red'
     },
     {
-      type: 'warning', 
+      type: 'warning',
       title: 'Pad Thai ingredients running low',
       action: 'Check inventory',
       icon: Fire,
@@ -156,23 +155,23 @@ const Dashboard = () => {
 
   const getTableStatusColor = (status: string) => {
     switch (status) {
-      case 'available': return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
-      case 'ordering': return 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700'
-      case 'eating': return 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-700'
-      case 'waiting-payment': return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700'
-      case 'order-ready': return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
-      case 'reserved': return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-      default: return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+      case 'available': return 'status-success border-2'
+      case 'ordering': return 'status-info border-2'
+      case 'eating': return 'badge-primary border-2 border-primary-200 dark:border-primary-700'
+      case 'waiting-payment': return 'status-warning border-2'
+      case 'order-ready': return 'status-error border-2'
+      case 'reserved': return 'badge border-2 border-border-primary'
+      default: return 'badge border-2 border-border-primary'
     }
   }
 
   const getKitchenStatusColor = (status: string) => {
     switch (status) {
-      case 'prep': return 'bg-yellow-500'
-      case 'cooking': return 'bg-blue-500'
-      case 'plating': return 'bg-purple-500'
-      case 'ready': return 'bg-red-500 animate-pulse'
-      default: return 'bg-gray-500'
+      case 'prep': return 'bg-primary-500 dark:bg-primary-600'
+      case 'cooking': return 'bg-blue-500 dark:bg-blue-600'
+      case 'plating': return 'bg-purple-500 dark:bg-purple-600'
+      case 'ready': return 'bg-red-500 dark:bg-red-600 animate-pulse'
+      default: return 'bg-background-tertiary'
     }
   }
 
@@ -198,21 +197,21 @@ const Dashboard = () => {
                 <Calendar className="h-5 w-5" />
                 <span className="text-lg">{currentTime.toLocaleString('th-TH')}</span>
               </div>
-              <div className={`flex items-center space-x-2 ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`flex items-center space-x-2 ${isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {isOnline ? <Wifi className="h-5 w-5" /> : <WifiOff className="h-5 w-5" />}
                 <span className="font-medium">{isOnline ? 'Connected' : 'Offline'}</span>
               </div>
             </div>
           </div>
-          
+
           {/* CRITICAL STATUS INDICATORS */}
           <div className="mt-4 lg:mt-0 flex items-center space-x-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">SMOOTH</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">SMOOTH</div>
               <div className="text-sm text-text-secondary">Operations</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary-600">{dashboardData.kitchenCapacity}%</div>
+              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{dashboardData.kitchenCapacity}%</div>
               <div className="text-sm text-text-secondary">Kitchen Load</div>
             </div>
           </div>
@@ -221,25 +220,25 @@ const Dashboard = () => {
         {/* MASSIVE KEY METRICS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-density-lg">
           <div className="text-center p-density-lg">
-            <div className="text-6xl md:text-7xl font-bold text-primary-600 mb-2">{dashboardData.todayOrders}</div>
+            <div className="text-6xl md:text-7xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dashboardData.todayOrders}</div>
             <div className="text-xl font-semibold text-heading mb-1">Orders Today</div>
-            <div className="text-lg text-green-600 font-medium">{dashboardData.trendsToday.orders} vs yesterday</div>
+            <div className="text-lg text-green-600 dark:text-green-400 font-medium">{dashboardData.trendsToday.orders} vs yesterday</div>
           </div>
-          
+
           <div className="text-center p-density-lg">
-            <div className="text-6xl md:text-7xl font-bold text-green-600 mb-2">{formatThaiCurrency(dashboardData.todayRevenue)}</div>
+            <div className="text-6xl md:text-7xl font-bold text-green-600 dark:text-green-400 mb-2">{formatThaiCurrency(dashboardData.todayRevenue)}</div>
             <div className="text-xl font-semibold text-heading mb-1">Revenue Today</div>
-            <div className="text-lg text-green-600 font-medium">{dashboardData.trendsToday.revenue} vs yesterday</div>
+            <div className="text-lg text-green-600 dark:text-green-400 font-medium">{dashboardData.trendsToday.revenue} vs yesterday</div>
           </div>
-          
+
           <div className="text-center p-density-lg">
-            <div className="text-6xl md:text-7xl font-bold text-blue-600 mb-2">{dashboardData.tablesOccupied}/{dashboardData.totalTables}</div>
+            <div className="text-6xl md:text-7xl font-bold text-blue-600 dark:text-blue-400 mb-2">{dashboardData.tablesOccupied}/{dashboardData.totalTables}</div>
             <div className="text-xl font-semibold text-heading mb-1">Tables Occupied</div>
             <div className="text-lg text-text-secondary font-medium">{dashboardData.waitTime}min avg wait</div>
           </div>
-          
+
           <div className="text-center p-density-lg">
-            <div className="text-6xl md:text-7xl font-bold text-purple-600 mb-2">{dashboardData.trendsToday.satisfaction}</div>
+            <div className="text-6xl md:text-7xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dashboardData.trendsToday.satisfaction}</div>
             <div className="text-xl font-semibold text-heading mb-1">Satisfaction</div>
             <div className="text-lg text-text-secondary font-medium">Customer Rating</div>
           </div>
@@ -252,23 +251,19 @@ const Dashboard = () => {
           const Icon = insight.icon
           return (
             <div key={index} className={`card-elevated border-l-4 ${
-              insight.color === 'red' ? 'border-red-500 bg-red-50 dark:bg-red-900/10' :
-              insight.color === 'amber' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' :
-              'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
+              insight.color === 'red' ? 'border-red-500 notification-error' :
+              insight.color === 'amber' ? 'border-primary-500 notification-warning' :
+              'border-blue-500 notification-info'
             }`}>
               <div className="flex items-start space-x-3">
                 <Icon className={`h-6 w-6 mt-1 ${
-                  insight.color === 'red' ? 'text-red-600' :
-                  insight.color === 'amber' ? 'text-amber-600' :
-                  'text-blue-600'
+                  insight.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                  insight.color === 'amber' ? 'text-primary-600 dark:text-primary-400' :
+                  'text-blue-600 dark:text-blue-400'
                 }`} />
                 <div className="flex-1">
                   <h3 className="font-semibold text-heading text-lg">{insight.title}</h3>
-                  <button className={`mt-2 btn-primary text-sm ${
-                    insight.color === 'red' ? 'bg-red-600 hover:bg-red-700' :
-                    insight.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
-                    'bg-blue-600 hover:bg-blue-700'
-                  }`}>
+                  <button className="mt-2 btn-primary text-sm">
                     {insight.action}
                   </button>
                 </div>
@@ -280,7 +275,7 @@ const Dashboard = () => {
 
       {/* MAIN OPERATIONAL PANELS */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-density-lg">
-        
+
         {/* KITCHEN COMMAND CENTER - MOST PROMINENT */}
         <div className="xl:col-span-2 card-elevated">
           <div className="card-header">
@@ -290,10 +285,10 @@ const Dashboard = () => {
                 Live Kitchen Queue
               </h2>
               <div className="flex items-center space-x-3">
-                <div className="text-sm bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 px-3 py-1 rounded-full">
+                <div className="text-sm status-success px-3 py-1">
                   {kitchenQueue.length} orders active
                 </div>
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -303,8 +298,8 @@ const Dashboard = () => {
               const StatusIcon = getKitchenStatusIcon(order.status)
               return (
                 <div key={order.id} className={`border-l-4 p-4 rounded-lg transition-theme ${
-                  order.priority === 'urgent' ? 'border-red-500 bg-red-50 dark:bg-red-900/10' :
-                  order.priority === 'high' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' :
+                  order.priority === 'urgent' ? 'border-red-500 notification-error' :
+                  order.priority === 'high' ? 'border-primary-500 notification-warning' :
                   'border-blue-500 bg-background-secondary'
                 }`}>
                   <div className="flex items-center justify-between mb-3">
@@ -320,13 +315,13 @@ const Dashboard = () => {
                     <div className="text-right">
                       <div className="text-xl font-bold text-heading">{order.total}</div>
                       <div className={`text-sm font-medium ${
-                        order.status === 'ready' ? 'text-red-600 animate-pulse' : 'text-text-secondary'
+                        order.status === 'ready' ? 'text-red-600 dark:text-red-400 animate-pulse' : 'text-text-secondary'
                       }`}>
                         {order.estimatedCompletion}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold text-text-primary mb-1">Order Items:</h4>
@@ -339,7 +334,7 @@ const Dashboard = () => {
                         ))}
                       </ul>
                     </div>
-                    
+
                     {order.specialRequests && (
                       <div>
                         <h4 className="font-semibold text-text-primary mb-1">Special Requests:</h4>
@@ -347,7 +342,7 @@ const Dashboard = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex space-x-2 mt-4">
                     {order.status === 'ready' && (
                       <button className="btn-gradient text-sm">
@@ -444,7 +439,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-4 md:mt-0">
             <button className="btn-gradient">
               <Zap className="h-4 w-4 mr-2" />
