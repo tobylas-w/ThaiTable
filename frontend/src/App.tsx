@@ -16,6 +16,7 @@ import MenuManagement from './pages/MenuManagement';
 import OrderManagement from './pages/OrderManagement';
 import RestaurantSetup from './pages/RestaurantSetup';
 import UserPreferences from './pages/UserPreferences';
+import CustomizationCenter from './pages/CustomizationCenter';
 
 // Components
 import ErrorBoundary from './components/ErrorBoundary';
@@ -79,9 +80,10 @@ function App() {
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="orders" element={<OrderManagement />} />
-              <Route path="menu" element={<MenuManagement />} />
-              <Route path="preferences" element={<UserPreferences />} />
+                          <Route path="orders" element={<OrderManagement />} />
+            <Route path="menu" element={<MenuManagement />} />
+            <Route path="preferences" element={<UserPreferences />} />
+            <Route path="customization" element={<CustomizationCenter />} />
             </Route>
 
             {/* Admin Routes */}

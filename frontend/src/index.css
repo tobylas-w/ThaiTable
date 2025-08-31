@@ -80,15 +80,15 @@
 }
 
 [data-color-scheme="thai-gold"].dark {
-  /* Dark Mode Colors */
-  --color-bg-primary: 17 24 39;
-  --color-bg-secondary: 31 41 55;
-  --color-bg-tertiary: 55 65 81;
-  --color-text-primary: 249 250 251;
-  --color-text-secondary: 209 213 219;
-  --color-text-tertiary: 156 163 175;
-  --color-border-primary: 75 85 99;
-  --color-border-secondary: 55 65 81;
+  /* Dark Mode Colors - Improved */
+  --color-bg-primary: 15 16 17;        /* Very dark grey instead of pure black */
+  --color-bg-secondary: 24 25 26;      /* Dark grey for cards/panels */
+  --color-bg-tertiary: 32 33 35;       /* Medium grey for hover states */
+  --color-text-primary: 245 246 247;   /* Soft white for main text */
+  --color-text-secondary: 200 201 202; /* Light grey for secondary text */
+  --color-text-tertiary: 156 158 161;  /* Medium grey for muted text */
+  --color-border-primary: 45 47 49;    /* Dark grey borders */
+  --color-border-secondary: 32 33 35;  /* Darker borders for subtle divisions */
 }
 
 /* Blue Color Scheme */
@@ -116,14 +116,14 @@
 }
 
 [data-color-scheme="blue"].dark {
-  --color-bg-primary: 15 23 42;
-  --color-bg-secondary: 30 41 59;
-  --color-bg-tertiary: 51 65 85;
-  --color-text-primary: 248 250 252;
-  --color-text-secondary: 203 213 225;
-  --color-text-tertiary: 148 163 184;
-  --color-border-primary: 71 85 105;
-  --color-border-secondary: 51 65 85;
+  --color-bg-primary: 11 15 25;        /* Deep blue-grey */
+  --color-bg-secondary: 17 24 35;      /* Slightly lighter blue-grey */
+  --color-bg-tertiary: 25 35 47;       /* Medium blue-grey */
+  --color-text-primary: 248 250 252;   /* Clean white */
+  --color-text-secondary: 203 213 225; /* Light blue-grey */
+  --color-text-tertiary: 148 163 184;  /* Medium blue-grey */
+  --color-border-primary: 37 47 63;    /* Dark blue-grey borders */
+  --color-border-secondary: 25 35 47;  /* Darker blue borders */
 }
 
 /* Green Color Scheme */
@@ -151,14 +151,14 @@
 }
 
 [data-color-scheme="green"].dark {
-  --color-bg-primary: 20 83 45;
-  --color-bg-secondary: 22 101 52;
-  --color-bg-tertiary: 21 128 61;
-  --color-text-primary: 240 253 244;
-  --color-text-secondary: 220 252 231;
-  --color-text-tertiary: 187 247 208;
-  --color-border-primary: 22 101 52;
-  --color-border-secondary: 21 128 61;
+  --color-bg-primary: 12 20 15;        /* Deep forest green-grey */
+  --color-bg-secondary: 17 28 21;      /* Dark green-grey */
+  --color-bg-tertiary: 24 38 29;       /* Medium green-grey */
+  --color-text-primary: 247 250 248;   /* Soft white with green tint */
+  --color-text-secondary: 209 219 213; /* Light green-grey */
+  --color-text-tertiary: 156 174 163;  /* Medium green-grey */
+  --color-border-primary: 31 48 37;    /* Dark green borders */
+  --color-border-secondary: 24 38 29;  /* Darker green borders */
 }
 
 /* Purple Color Scheme */
@@ -186,14 +186,14 @@
 }
 
 [data-color-scheme="purple"].dark {
-  --color-bg-primary: 76 29 149;
-  --color-bg-secondary: 91 33 182;
-  --color-bg-tertiary: 109 40 217;
-  --color-text-primary: 250 245 255;
-  --color-text-secondary: 243 232 255;
-  --color-text-tertiary: 233 213 255;
-  --color-border-primary: 91 33 182;
-  --color-border-secondary: 109 40 217;
+  --color-bg-primary: 15 12 20;        /* Deep purple-grey */
+  --color-bg-secondary: 22 17 28;      /* Dark purple-grey */
+  --color-bg-tertiary: 31 24 38;       /* Medium purple-grey */
+  --color-text-primary: 250 247 252;   /* Soft white with purple tint */
+  --color-text-secondary: 220 209 227; /* Light purple-grey */
+  --color-text-tertiary: 174 156 185;  /* Medium purple-grey */
+  --color-border-primary: 45 37 55;    /* Dark purple borders */
+  --color-border-secondary: 31 24 38;  /* Darker purple borders */
 }
 
 /* Reduced Motion */

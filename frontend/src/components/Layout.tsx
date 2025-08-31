@@ -65,6 +65,7 @@ const Layout = () => {
     { name: t('navigation.menu'), href: '/menu', icon: Menu },
     { name: t('navigation.orders'), href: '/orders', icon: ShoppingCart },
     { name: 'Preferences', href: '/preferences', icon: Settings },
+    { name: 'Customization', href: '/customization', icon: Settings },
     { name: t('navigation.reports'), href: '/reports', icon: BarChart3 },
     { name: t('navigation.settings'), href: '/settings', icon: Settings },
   ];
