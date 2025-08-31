@@ -81,23 +81,23 @@ export const usePageStyleStore = create<PageStyleStore>()(
 
       // Actions
       setPageStyle: (pageStyle: PageStyle) => {
-        set({ 
-          pageStyle, 
+        set({
+          pageStyle,
           pageClassName: getPageClassName(pageStyle)
         });
         get().applyPageStyles();
       },
 
       setCardVariant: (cardVariant: CardVariant) => {
-        set({ 
-          cardVariant, 
+        set({
+          cardVariant,
           cardClassName: getCardClassName(cardVariant)
         });
       },
 
       setButtonVariant: (buttonVariant: ButtonVariant) => {
-        set({ 
-          buttonVariant, 
+        set({
+          buttonVariant,
           buttonClassName: getButtonClassName(buttonVariant)
         });
       },

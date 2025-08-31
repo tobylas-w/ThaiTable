@@ -1,17 +1,19 @@
 import {
-  Activity,
   AlertTriangle,
-  BarChart3,
   Calendar,
-  CheckCircle,
+  ChefHat,
   Clock,
   DollarSign,
-  Menu,
-  PieChart,
-  ShoppingCart,
-  TrendingDown,
+  Eye,
+  Fire,
+  MapPin,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Timer,
   TrendingUp,
   Users,
+  Utensils,
   Wifi,
   WifiOff,
   Zap
@@ -20,35 +22,117 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatThaiCurrency } from '../utils/thaiMarket'
 
-// Add CSS for progress bars
-const progressBarStyle = `
-  .progress-bar {
-    transition: width 0.5s ease-in-out;
-  }
-`
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style')
-  styleSheet.type = 'text/css'
-  styleSheet.innerText = progressBarStyle
-  document.head.appendChild(styleSheet)
-}
-
 const Dashboard = () => {
   const { t } = useTranslation()
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [statsData, setStatsData] = useState({
-    todayOrders: 24,
-    todayRevenue: 12450,
-    totalMenuItems: 156,
-    activeUsers: 8,
-    averageOrderValue: 518.75,
-    peakHour: '19:00',
-    occupancyRate: 68
+  
+  // Enhanced restaurant data with realistic kitchen operations
+  const [dashboardData, setDashboardData] = useState({
+    todayOrders: 43,
+    todayRevenue: 18750,
+    avgOrderValue: 436,
+    tablesOccupied: 12,
+    totalTables: 16,
+    waitTime: 15,
+    kitchenCapacity: 85,
+    staffOnDuty: 8,
+    peakTime: "7:30 PM",
+    trendsToday: {
+      orders: "+18%",
+      revenue: "+12%",
+      satisfaction: "4.7/5"
+    }
   })
-  const [realtimeUpdates, setRealtimeUpdates] = useState(true)
+
+  // Real-time kitchen queue with detailed order progression
+  const [kitchenQueue, setKitchenQueue] = useState([
+    { 
+      id: '#047', 
+      table: 'A3', 
+      items: ['Pad Thai', 'Tom Yum', 'Mango Rice'], 
+      total: '฿680', 
+      status: 'prep', 
+      priority: 'high',
+      timeInQueue: '2m',
+      estimatedCompletion: '8m',
+      chef: 'Somchai',
+      specialRequests: 'Extra spicy, no peanuts'
+    },
+    { 
+      id: '#048', 
+      table: 'B1', 
+      items: ['Green Curry', 'Jasmine Rice'], 
+      total: '฿320', 
+      status: 'cooking', 
+      priority: 'normal',
+      timeInQueue: '12m',
+      estimatedCompletion: '3m',
+      chef: 'Niran',
+      specialRequests: null
+    },
+    { 
+      id: '#049', 
+      table: 'C2', 
+      items: ['Massaman Curry', 'Pad See Ew', 'Thai Tea'], 
+      total: '฿580', 
+      status: 'plating', 
+      priority: 'normal',
+      timeInQueue: '18m',
+      estimatedCompletion: '1m',
+      chef: 'Apinya',
+      specialRequests: 'Medium spice level'
+    },
+    { 
+      id: '#050', 
+      table: 'A1', 
+      items: ['Som Tam', 'Grilled Fish'], 
+      total: '฿450', 
+      status: 'ready', 
+      priority: 'urgent',
+      timeInQueue: '22m',
+      estimatedCompletion: 'Ready!',
+      chef: 'Somchai',
+      specialRequests: null
+    }
+  ])
+
+  // Live table status with actionable information
+  const tableStatus = [
+    { number: 'A1', status: 'order-ready', customers: 4, orderTime: '22m ago', server: 'Mali', revenue: '฿450' },
+    { number: 'A2', status: 'available', customers: 0, orderTime: null, server: null, revenue: null },
+    { number: 'A3', status: 'ordering', customers: 3, orderTime: '2m ago', server: 'Porn', revenue: '฿680' },
+    { number: 'B1', status: 'eating', customers: 2, orderTime: '35m ago', server: 'Nim', revenue: '฿320' },
+    { number: 'B2', status: 'waiting-payment', customers: 4, orderTime: '1h 5m ago', server: 'Mali', revenue: '฿720' },
+    { number: 'B3', status: 'available', customers: 0, orderTime: null, server: null, revenue: null },
+    { number: 'C1', status: 'reserved', customers: 6, orderTime: '15m', server: 'Porn', revenue: null },
+    { number: 'C2', status: 'ordering', customers: 2, orderTime: '8m ago', server: 'Nim', revenue: '฿580' }
+  ]
+
+  // Critical alerts and insights
+  const criticalInsights = [
+    {
+      type: 'urgent',
+      title: 'Table A1 order ready for 3+ minutes',
+      action: 'Alert server Mali',
+      icon: AlertTriangle,
+      color: 'red'
+    },
+    {
+      type: 'warning', 
+      title: 'Pad Thai ingredients running low',
+      action: 'Check inventory',
+      icon: Fire,
+      color: 'amber'
+    },
+    {
+      type: 'info',
+      title: 'Dinner rush starting early - 20% above usual',
+      action: 'Consider additional staff',
+      icon: TrendingUp,
+      color: 'blue'
+    }
+  ]
 
   // Real-time clock update
   useEffect(() => {
@@ -62,469 +146,310 @@ const Dashboard = () => {
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
-
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
 
-  // Simulate real-time data updates
-  useEffect(() => {
-    if (!realtimeUpdates) return
-
-    const interval = setInterval(() => {
-      setStatsData(prev => ({
-        ...prev,
-        todayOrders: prev.todayOrders + Math.random() > 0.7 ? 1 : 0,
-        todayRevenue: prev.todayRevenue + (Math.random() > 0.7 ? Math.floor(Math.random() * 500) + 200 : 0),
-        occupancyRate: Math.max(20, Math.min(95, prev.occupancyRate + (Math.random() - 0.5) * 10))
-      }))
-    }, 15000) // Update every 15 seconds
-
-    return () => clearInterval(interval)
-  }, [realtimeUpdates])
-
-  const enhancedStats = [
-    {
-      name: t('dashboard.todayOrders'),
-      value: statsData.todayOrders.toString(),
-      icon: ShoppingCart,
-      change: '+12%',
-      changeType: 'positive',
-      subtext: t('dashboard.comparedToYesterday'),
-      trend: [20, 22, 19, 24, 18, 24, statsData.todayOrders]
-    },
-    {
-      name: t('dashboard.todayRevenue'),
-      value: formatThaiCurrency(statsData.todayRevenue),
-      icon: DollarSign,
-      change: '+8%',
-      changeType: 'positive',
-      subtext: t('dashboard.comparedToYesterday'),
-      trend: [10000, 11000, 9500, 12450, 9800, 12450, statsData.todayRevenue]
-    },
-    {
-      name: t('dashboard.averageOrderValue'),
-      value: formatThaiCurrency(statsData.averageOrderValue),
-      icon: TrendingUp,
-      change: '+5%',
-      changeType: 'positive',
-      subtext: t('dashboard.perOrder'),
-      trend: [480, 495, 475, 518, 465, 518, Math.round(statsData.todayRevenue / statsData.todayOrders)]
-    },
-    {
-      name: t('dashboard.occupancyRate'),
-      value: `${Math.round(statsData.occupancyRate)}%`,
-      icon: Users,
-      change: statsData.occupancyRate > 70 ? '+5%' : '-2%',
-      changeType: statsData.occupancyRate > 70 ? 'positive' : 'negative',
-      subtext: t('dashboard.tableOccupancy'),
-      trend: [65, 70, 62, 68, 58, 68, Math.round(statsData.occupancyRate)]
-    }
-  ]
-
-  const recentOrders = [
-    { id: '#001', table: 'A1', items: 3, total: '฿450', status: 'served', time: '2 min ago' },
-    { id: '#002', table: 'B3', items: 2, total: '฿320', status: 'cooking', time: '5 min ago' },
-    { id: '#003', table: 'C2', items: 4, total: '฿680', status: 'pending', time: '8 min ago' },
-    { id: '#004', table: 'A4', items: 1, total: '฿180', status: 'paid', time: '12 min ago' }
-  ]
-
-  const popularItems = [
-    { name: 'Pad Thai', orders: 15, revenue: '฿2,250' },
-    { name: 'Tom Yum Goong', orders: 12, revenue: '฿1,800' },
-    { name: 'Green Curry', orders: 10, revenue: '฿1,500' },
-    { name: 'Mango Sticky Rice', orders: 8, revenue: '฿800' }
-  ]
-
-  const getStatusColor = (status: string) => {
+  const getTableStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'cooking': return 'bg-blue-100 text-blue-800'
-      case 'served': return 'bg-green-100 text-green-800'
-      case 'paid': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'available': return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700'
+      case 'ordering': return 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700'
+      case 'eating': return 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-700'
+      case 'waiting-payment': return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700'
+      case 'order-ready': return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700'
+      case 'reserved': return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+      default: return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
     }
   }
 
-  // Simple sparkline component
-  const Sparkline = ({ data, className = "" }: { data: number[], className?: string }) => {
-    const max = Math.max(...data)
-    const min = Math.min(...data)
-    const range = max - min || 1
+  const getKitchenStatusColor = (status: string) => {
+    switch (status) {
+      case 'prep': return 'bg-yellow-500'
+      case 'cooking': return 'bg-blue-500'
+      case 'plating': return 'bg-purple-500'
+      case 'ready': return 'bg-red-500 animate-pulse'
+      default: return 'bg-gray-500'
+    }
+  }
 
-    return (
-      <svg className={`w-16 h-8 ${className}`} viewBox="0 0 64 32">
-        <polyline
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          points={data.map((value, index) => {
-            const x = (index / (data.length - 1)) * 64
-            const y = 32 - ((value - min) / range) * 32
-            return `${x},${y}`
-          }).join(' ')}
-        />
-      </svg>
-    )
+  const getKitchenStatusIcon = (status: string) => {
+    switch (status) {
+      case 'prep': return ChefHat
+      case 'cooking': return Fire
+      case 'plating': return Utensils
+      case 'ready': return Sparkles
+      default: return Clock
+    }
   }
 
   return (
-    <div className="space-y-6">
-      {/* Enhanced Header with Real-time Status */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen bg-background-primary p-density-md space-y-density-lg">
+      {/* HERO METRICS - MASSIVE, PROMINENT DISPLAY */}
+      <div className="card-elevated">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-density-lg">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.title')}</h1>
-            <p className="mt-1 text-sm text-gray-500">{t('dashboard.welcome')}</p>
-          </div>
-          <div className="mt-4 sm:mt-0 flex items-center space-x-4">
-            {/* Real-time clock */}
-            <div className="flex items-center text-sm text-gray-500">
-              <Calendar className="h-4 w-4 mr-2" />
-              {currentTime.toLocaleString('th-TH')}
-            </div>
-
-            {/* Network status */}
-            <div className={`flex items-center text-sm ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
-              {isOnline ? <Wifi className="h-4 w-4 mr-1" /> : <WifiOff className="h-4 w-4 mr-1" />}
-              {isOnline ? t('dashboard.online') : t('dashboard.offline')}
-            </div>
-
-            {/* Real-time toggle */}
-            <button
-              onClick={() => setRealtimeUpdates(!realtimeUpdates)}
-              className={`flex items-center px-3 py-1 rounded-full text-sm ${realtimeUpdates
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } transition-colors`}
-            >
-              <Activity className={`h-4 w-4 mr-1 ${realtimeUpdates ? 'animate-pulse' : ''}`} />
-              {realtimeUpdates ? t('dashboard.live') : t('dashboard.paused')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Enhanced Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {enhancedStats.map((stat) => (
-          <div key={stat.name} className="bg-white overflow-hidden shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-            <div className="p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <stat.icon className={`h-6 w-6 ${stat.changeType === 'positive' ? 'text-green-500' : 'text-red-500'
-                      }`} />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-sm font-medium text-gray-500 truncate">{stat.name}</div>
-                    <div className="text-xl font-bold text-gray-900">{stat.value}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Sparkline
-                    data={stat.trend}
-                    className={stat.changeType === 'positive' ? 'text-green-500' : 'text-red-500'}
-                  />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div className={`flex items-center text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                  {stat.changeType === 'positive' ?
-                    <TrendingUp className="h-4 w-4 mr-1" /> :
-                    <TrendingDown className="h-4 w-4 mr-1" />
-                  }
-                  {stat.change}
-                </div>
-                <span className="text-xs text-gray-500">{stat.subtext}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Enhanced Content Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Recent Orders with Enhanced Status */}
-        <div className="bg-white shadow-lg rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {t('dashboard.recentOrders')}
-              </h3>
+            <h1 className="text-4xl md:text-5xl font-bold text-heading mb-2">Restaurant Command Center</h1>
+            <div className="flex items-center space-x-4 text-text-secondary">
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-500">{t('dashboard.live')}</span>
+                <Calendar className="h-5 w-5" />
+                <span className="text-lg">{currentTime.toLocaleString('th-TH')}</span>
+              </div>
+              <div className={`flex items-center space-x-2 ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+                {isOnline ? <Wifi className="h-5 w-5" /> : <WifiOff className="h-5 w-5" />}
+                <span className="font-medium">{isOnline ? 'Connected' : 'Offline'}</span>
               </div>
             </div>
-            <div className="flow-root">
-              <ul className="-my-3 divide-y divide-gray-200">
-                {recentOrders.map((order) => (
-                  <li key={order.id} className="py-3 hover:bg-gray-50 rounded-lg px-2 transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status === 'served' ? 'bg-green-100' :
-                            order.status === 'cooking' ? 'bg-blue-100' :
-                              order.status === 'pending' ? 'bg-yellow-100' : 'bg-gray-100'
-                          }`}>
-                          {order.status === 'served' ? <CheckCircle className="w-5 h-5 text-green-600" /> :
-                            order.status === 'cooking' ? <Activity className="w-5 h-5 text-blue-600" /> :
-                              order.status === 'pending' ? <Clock className="w-5 h-5 text-yellow-600" /> :
-                                <DollarSign className="w-5 h-5 text-gray-600" />}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {order.id} - {t('orders.tableNumber')} {order.table}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {order.items} {t('orders.items')} • {order.total}
-                        </p>
-                        <p className="text-xs text-gray-400">{order.time}</p>
-                      </div>
-                      <div className="flex flex-col items-end space-y-1">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                          {t(`orders.statuses.${order.status}`)}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+          </div>
+          
+          {/* CRITICAL STATUS INDICATORS */}
+          <div className="mt-4 lg:mt-0 flex items-center space-x-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">SMOOTH</div>
+              <div className="text-sm text-text-secondary">Operations</div>
             </div>
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <a href="/orders" className="text-sm font-medium text-amber-600 hover:text-amber-500 flex items-center">
-                {t('dashboard.viewAllOrders')}
-                <TrendingUp className="w-4 h-4 ml-1" />
-              </a>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary-600">{dashboardData.kitchenCapacity}%</div>
+              <div className="text-sm text-text-secondary">Kitchen Load</div>
             </div>
           </div>
         </div>
 
-        {/* Popular Items with Progress Bars */}
-        <div className="bg-white shadow-lg rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {t('dashboard.popularItems')}
-              </h3>
-              <BarChart3 className="w-5 h-5 text-gray-400" />
+        {/* MASSIVE KEY METRICS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-density-lg">
+          <div className="text-center p-density-lg">
+            <div className="text-6xl md:text-7xl font-bold text-primary-600 mb-2">{dashboardData.todayOrders}</div>
+            <div className="text-xl font-semibold text-heading mb-1">Orders Today</div>
+            <div className="text-lg text-green-600 font-medium">{dashboardData.trendsToday.orders} vs yesterday</div>
+          </div>
+          
+          <div className="text-center p-density-lg">
+            <div className="text-6xl md:text-7xl font-bold text-green-600 mb-2">{formatThaiCurrency(dashboardData.todayRevenue)}</div>
+            <div className="text-xl font-semibold text-heading mb-1">Revenue Today</div>
+            <div className="text-lg text-green-600 font-medium">{dashboardData.trendsToday.revenue} vs yesterday</div>
+          </div>
+          
+          <div className="text-center p-density-lg">
+            <div className="text-6xl md:text-7xl font-bold text-blue-600 mb-2">{dashboardData.tablesOccupied}/{dashboardData.totalTables}</div>
+            <div className="text-xl font-semibold text-heading mb-1">Tables Occupied</div>
+            <div className="text-lg text-text-secondary font-medium">{dashboardData.waitTime}min avg wait</div>
+          </div>
+          
+          <div className="text-center p-density-lg">
+            <div className="text-6xl md:text-7xl font-bold text-purple-600 mb-2">{dashboardData.trendsToday.satisfaction}</div>
+            <div className="text-xl font-semibold text-heading mb-1">Satisfaction</div>
+            <div className="text-lg text-text-secondary font-medium">Customer Rating</div>
+          </div>
+        </div>
+      </div>
+
+      {/* CRITICAL ALERTS SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-density-lg">
+        {criticalInsights.map((insight, index) => {
+          const Icon = insight.icon
+          return (
+            <div key={index} className={`card-elevated border-l-4 ${
+              insight.color === 'red' ? 'border-red-500 bg-red-50 dark:bg-red-900/10' :
+              insight.color === 'amber' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' :
+              'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
+            }`}>
+              <div className="flex items-start space-x-3">
+                <Icon className={`h-6 w-6 mt-1 ${
+                  insight.color === 'red' ? 'text-red-600' :
+                  insight.color === 'amber' ? 'text-amber-600' :
+                  'text-blue-600'
+                }`} />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-heading text-lg">{insight.title}</h3>
+                  <button className={`mt-2 btn-primary text-sm ${
+                    insight.color === 'red' ? 'bg-red-600 hover:bg-red-700' :
+                    insight.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
+                    'bg-blue-600 hover:bg-blue-700'
+                  }`}>
+                    {insight.action}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="space-y-4">
-              {popularItems.map((item, index) => (
-                <div key={item.name} className="relative">
-                  <div className="flex items-center justify-between mb-2">
+          )
+        })}
+      </div>
+
+      {/* MAIN OPERATIONAL PANELS */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-density-lg">
+        
+        {/* KITCHEN COMMAND CENTER - MOST PROMINENT */}
+        <div className="xl:col-span-2 card-elevated">
+          <div className="card-header">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-heading flex items-center">
+                <ChefHat className="h-7 w-7 mr-3 text-primary-600" />
+                Live Kitchen Queue
+              </h2>
+              <div className="flex items-center space-x-3">
+                <div className="text-sm bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 px-3 py-1 rounded-full">
+                  {kitchenQueue.length} orders active
+                </div>
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {kitchenQueue.map((order) => {
+              const StatusIcon = getKitchenStatusIcon(order.status)
+              return (
+                <div key={order.id} className={`border-l-4 p-4 rounded-lg transition-theme ${
+                  order.priority === 'urgent' ? 'border-red-500 bg-red-50 dark:bg-red-900/10' :
+                  order.priority === 'high' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' :
+                  'border-blue-500 bg-background-secondary'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                          index === 1 ? 'bg-gray-100 text-gray-800' :
-                            index === 2 ? 'bg-orange-100 text-orange-800' :
-                              'bg-blue-100 text-blue-800'
-                        }`}>
-                        {index + 1}
+                      <div className={`p-2 rounded-lg ${getKitchenStatusColor(order.status)}`}>
+                        <StatusIcon className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                      <div>
+                        <h3 className="font-bold text-lg text-heading">{order.id} - Table {order.table}</h3>
+                        <p className="text-text-secondary">Chef: {order.chef} • In queue: {order.timeInQueue}</p>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">{item.revenue}</p>
-                      <p className="text-xs text-gray-500">{item.orders} orders</p>
+                      <div className="text-xl font-bold text-heading">{order.total}</div>
+                      <div className={`text-sm font-medium ${
+                        order.status === 'ready' ? 'text-red-600 animate-pulse' : 'text-text-secondary'
+                      }`}>
+                        {order.estimatedCompletion}
+                      </div>
                     </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`progress-bar h-2 rounded-full ${index === 0 ? 'bg-yellow-500' :
-                          index === 1 ? 'bg-gray-500' :
-                            index === 2 ? 'bg-orange-500' :
-                              'bg-blue-500'
-                        }`}
-                      ref={(el) => {
-                        if (el) {
-                          requestAnimationFrame(() => {
-                            el.style.width = `${(item.orders / 15) * 100}%`
-                          })
-                        }
-                      }}
-                    ></div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-text-primary mb-1">Order Items:</h4>
+                      <ul className="text-text-secondary space-y-1">
+                        {order.items.map((item, idx) => (
+                          <li key={idx} className="flex items-center space-x-2">
+                            <Utensils className="h-4 w-4" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    {order.specialRequests && (
+                      <div>
+                        <h4 className="font-semibold text-text-primary mb-1">Special Requests:</h4>
+                        <p className="text-text-secondary italic">{order.specialRequests}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex space-x-2 mt-4">
+                    {order.status === 'ready' && (
+                      <button className="btn-gradient text-sm">
+                        <Play className="h-4 w-4 mr-1" />
+                        Alert Server
+                      </button>
+                    )}
+                    <button className="btn-ghost text-sm">
+                      <Eye className="h-4 w-4 mr-1" />
+                      View Details
+                    </button>
+                    <button className="btn-ghost text-sm">
+                      <Timer className="h-4 w-4 mr-1" />
+                      Update Time
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <a href="/menu" className="text-sm font-medium text-amber-600 hover:text-amber-500 flex items-center">
-                {t('dashboard.viewMenu')}
-                <Menu className="w-4 h-4 ml-1" />
-              </a>
-            </div>
+              )
+            })}
           </div>
         </div>
 
-        {/* Kitchen Status & Alerts */}
-        <div className="bg-white shadow-lg rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {t('dashboard.kitchenStatus')}
-              </h3>
-              <Zap className="w-5 h-5 text-amber-500" />
-            </div>
+        {/* TABLE STATUS OVERVIEW */}
+        <div className="card-elevated">
+          <div className="card-header">
+            <h2 className="text-xl font-bold text-heading flex items-center">
+              <MapPin className="h-6 w-6 mr-3 text-primary-600" />
+              Table Status
+            </h2>
+            <p className="text-text-secondary mt-1">{dashboardData.tablesOccupied} of {dashboardData.totalTables} occupied</p>
+          </div>
 
-            {/* Kitchen Metrics */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium text-green-900">{t('dashboard.ordersCompleted')}</span>
-                </div>
-                <span className="text-lg font-bold text-green-900">18</span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Activity className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900">{t('dashboard.ordersInProgress')}</span>
-                </div>
-                <span className="text-lg font-bold text-blue-900">6</span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Clock className="w-5 h-5 text-yellow-600" />
-                  <span className="text-sm font-medium text-yellow-900">{t('dashboard.avgPrepTime')}</span>
-                </div>
-                <span className="text-lg font-bold text-yellow-900">12m</span>
-              </div>
-
-              {/* Alert */}
-              <div className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-900">{t('dashboard.lowStock')}</p>
-                  <p className="text-xs text-red-700">{t('dashboard.checkInventory')}</p>
+          <div className="grid grid-cols-2 gap-3">
+            {tableStatus.map((table) => (
+              <div key={table.number} className={`p-3 rounded-lg border-2 transition-theme ${getTableStatusColor(table.status)}`}>
+                <div className="text-center">
+                  <div className="text-lg font-bold">{table.number}</div>
+                  <div className="text-xs capitalize font-medium">
+                    {table.status.replace('-', ' ')}
+                  </div>
+                  {table.customers > 0 && (
+                    <div className="mt-1">
+                      <div className="flex items-center justify-center space-x-1 text-xs">
+                        <Users className="h-3 w-3" />
+                        <span>{table.customers}</span>
+                      </div>
+                      {table.revenue && (
+                        <div className="text-xs font-medium mt-1">{table.revenue}</div>
+                      )}
+                      {table.orderTime && (
+                        <div className="text-xs opacity-75">{table.orderTime}</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ))}
+          </div>
 
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <a href="/orders" className="text-sm font-medium text-amber-600 hover:text-amber-500 flex items-center">
-                {t('dashboard.viewKitchen')}
-                <Activity className="w-4 h-4 ml-1" />
-              </a>
+          {/* QUICK TABLE ACTIONS */}
+          <div className="mt-6 pt-4 border-t border-border-primary">
+            <h3 className="font-semibold text-text-primary mb-3">Quick Actions</h3>
+            <div className="space-y-2">
+              <button className="w-full btn-primary text-sm">
+                <Users className="h-4 w-4 mr-2" />
+                Seat Next Customer (Est. 15min wait)
+              </button>
+              <button className="w-full btn-secondary text-sm">
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset Table Status
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Performance Overview */}
-      <div className="bg-white shadow-lg rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
-              {t('dashboard.performanceOverview')}
-            </h3>
-            <PieChart className="w-5 h-5 text-gray-400" />
+      {/* CONTEXTUAL INSIGHTS FOOTER */}
+      <div className="card-elevated">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-heading mb-2">Today's Performance Context</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-text-secondary">Peak time approaching:</span>
+                <span className="font-medium text-text-primary ml-2">{dashboardData.peakTime}</span>
+              </div>
+              <div>
+                <span className="text-text-secondary">Staff on duty:</span>
+                <span className="font-medium text-text-primary ml-2">{dashboardData.staffOnDuty} team members</span>
+              </div>
+              <div>
+                <span className="text-text-secondary">Kitchen efficiency:</span>
+                <span className="font-medium text-green-600 ml-2">Running smoothly</span>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Today's Performance */}
-            <div className="text-center">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <svg className="w-24 h-24 transform -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    className="text-gray-200"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray={`${2 * Math.PI * 40 * 0.75} ${2 * Math.PI * 40}`}
-                    className="text-green-500"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-gray-900">75%</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-gray-900">{t('dashboard.todayTarget')}</p>
-              <p className="text-xs text-gray-500">{formatThaiCurrency(12450)} / {formatThaiCurrency(16600)}</p>
-            </div>
-
-            {/* Customer Satisfaction */}
-            <div className="text-center">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <svg className="w-24 h-24 transform -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    className="text-gray-200"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray={`${2 * Math.PI * 40 * 0.92} ${2 * Math.PI * 40}`}
-                    className="text-yellow-500"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-gray-900">4.6</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-gray-900">{t('dashboard.satisfaction')}</p>
-              <p className="text-xs text-gray-500">{t('dashboard.basedOnReviews')}</p>
-            </div>
-
-            {/* Efficiency */}
-            <div className="text-center">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <svg className="w-24 h-24 transform -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    className="text-gray-200"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray={`${2 * Math.PI * 40 * 0.85} ${2 * Math.PI * 40}`}
-                    className="text-blue-500"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold text-gray-900">85%</span>
-                </div>
-              </div>
-              <p className="text-sm font-medium text-gray-900">{t('dashboard.efficiency')}</p>
-              <p className="text-xs text-gray-500">{t('dashboard.orderProcessing')}</p>
-            </div>
+          
+          <div className="mt-4 md:mt-0">
+            <button className="btn-gradient">
+              <Zap className="h-4 w-4 mr-2" />
+              Optimize Operations
+            </button>
           </div>
         </div>
       </div>

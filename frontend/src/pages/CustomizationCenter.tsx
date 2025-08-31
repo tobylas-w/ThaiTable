@@ -22,7 +22,7 @@ import {
 const CustomizationCenter: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'theme' | 'layout' | 'accessibility' | 'preview'>('theme');
-  
+
   const {
     mode,
     colorScheme,
@@ -40,62 +40,62 @@ const CustomizationCenter: React.FC = () => {
   } = useThemeStore();
 
   const themeOptions: { value: ThemeMode; label: string; icon: React.ReactNode; description: string }[] = [
-    { 
-      value: 'dark', 
-      label: 'Dark Mode', 
-      icon: <MoonIcon className="h-6 w-6" />, 
+    {
+      value: 'dark',
+      label: 'Dark Mode',
+      icon: <MoonIcon className="h-6 w-6" />,
       description: 'Easy on the eyes, perfect for low-light environments'
     },
-    { 
-      value: 'light', 
-      label: 'Light Mode', 
-      icon: <SunIcon className="h-6 w-6" />, 
+    {
+      value: 'light',
+      label: 'Light Mode',
+      icon: <SunIcon className="h-6 w-6" />,
       description: 'Clean and bright, ideal for well-lit spaces'
     },
-    { 
-      value: 'system', 
-      label: 'System', 
-      icon: <ComputerDesktopIcon className="h-6 w-6" />, 
+    {
+      value: 'system',
+      label: 'System',
+      icon: <ComputerDesktopIcon className="h-6 w-6" />,
       description: 'Automatically matches your device settings'
     },
   ];
 
-  const colorSchemeOptions: { 
-    value: ColorScheme; 
-    label: string; 
-    preview: string; 
+  const colorSchemeOptions: {
+    value: ColorScheme;
+    label: string;
+    preview: string;
     description: string;
     accent: string;
   }[] = [
-    { 
-      value: 'thai-gold', 
-      label: 'Thai Gold', 
-      preview: 'bg-yellow-500', 
-      description: 'Warm and welcoming, inspired by Thai culture',
-      accent: 'bg-gradient-to-r from-yellow-400 to-yellow-600'
-    },
-    { 
-      value: 'blue', 
-      label: 'Ocean Blue', 
-      preview: 'bg-blue-500', 
-      description: 'Professional and calming, like deep waters',
-      accent: 'bg-gradient-to-r from-blue-400 to-blue-600'
-    },
-    { 
-      value: 'green', 
-      label: 'Forest Green', 
-      preview: 'bg-green-500', 
-      description: 'Natural and refreshing, eco-friendly vibes',
-      accent: 'bg-gradient-to-r from-green-400 to-green-600'
-    },
-    { 
-      value: 'purple', 
-      label: 'Royal Purple', 
-      preview: 'bg-purple-500', 
-      description: 'Elegant and sophisticated, premium feel',
-      accent: 'bg-gradient-to-r from-purple-400 to-purple-600'
-    },
-  ];
+      {
+        value: 'thai-gold',
+        label: 'Thai Gold',
+        preview: 'bg-yellow-500',
+        description: 'Warm and welcoming, inspired by Thai culture',
+        accent: 'bg-gradient-to-r from-yellow-400 to-yellow-600'
+      },
+      {
+        value: 'blue',
+        label: 'Ocean Blue',
+        preview: 'bg-blue-500',
+        description: 'Professional and calming, like deep waters',
+        accent: 'bg-gradient-to-r from-blue-400 to-blue-600'
+      },
+      {
+        value: 'green',
+        label: 'Forest Green',
+        preview: 'bg-green-500',
+        description: 'Natural and refreshing, eco-friendly vibes',
+        accent: 'bg-gradient-to-r from-green-400 to-green-600'
+      },
+      {
+        value: 'purple',
+        label: 'Royal Purple',
+        preview: 'bg-purple-500',
+        description: 'Elegant and sophisticated, premium feel',
+        accent: 'bg-gradient-to-r from-purple-400 to-purple-600'
+      },
+    ];
 
   const fontSizeOptions: { value: FontSize; label: string; description: string; example: string }[] = [
     { value: 'small', label: 'Small', description: '14px base', example: 'text-sm' },
@@ -157,11 +157,10 @@ const CustomizationCenter: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-theme ${
-                    activeTab === tab.id
+                  className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-theme ${activeTab === tab.id
                       ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                       : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-primary'
-                  }`}
+                    }`}
                 >
                   <Icon className="h-5 w-5" />
                   <span>{tab.name}</span>
@@ -186,17 +185,16 @@ const CustomizationCenter: React.FC = () => {
                     </h2>
                     <p className="text-body">Choose how you want your interface to appear</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-density-md">
                     {themeOptions.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => setMode(option.value)}
-                        className={`p-density-lg rounded-xl border-2 transition-theme text-left ${
-                          mode === option.value
+                        className={`p-density-lg rounded-xl border-2 transition-theme text-left ${mode === option.value
                             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
                             : 'border-border-primary hover:border-primary-300 hover:bg-background-tertiary'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center space-x-3 mb-3">
                           <div className={`p-2 rounded-lg ${mode === option.value ? 'bg-primary-100 dark:bg-primary-800' : 'bg-background-tertiary'}`}>
@@ -219,17 +217,16 @@ const CustomizationCenter: React.FC = () => {
                     </h2>
                     <p className="text-body">Select your preferred color palette and accent</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-density-md">
                     {colorSchemeOptions.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => setColorScheme(option.value)}
-                        className={`p-density-lg rounded-xl border-2 transition-theme text-left ${
-                          colorScheme === option.value
+                        className={`p-density-lg rounded-xl border-2 transition-theme text-left ${colorScheme === option.value
                             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
                             : 'border-border-primary hover:border-primary-300 hover:bg-background-tertiary'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center space-x-4 mb-3">
                           <div className={`w-12 h-12 ${option.accent} rounded-xl shadow-md`}></div>
@@ -254,7 +251,7 @@ const CustomizationCenter: React.FC = () => {
                     <h2 className="text-2xl font-semibold text-heading">Font Size</h2>
                     <p className="text-body">Adjust text size for optimal readability</p>
                   </div>
-                  
+
                   <div className="space-y-density-md">
                     {fontSizeOptions.map((option) => (
                       <label key={option.value} className="flex items-center space-x-4 cursor-pointer p-density-sm rounded-lg hover:bg-background-tertiary transition-theme">
@@ -286,7 +283,7 @@ const CustomizationCenter: React.FC = () => {
                     <h2 className="text-2xl font-semibold text-heading">Layout Density</h2>
                     <p className="text-body">Control spacing and information density</p>
                   </div>
-                  
+
                   <div className="space-y-density-md">
                     {layoutDensityOptions.map((option) => (
                       <label key={option.value} className="flex items-center space-x-4 cursor-pointer p-density-sm rounded-lg hover:bg-background-tertiary transition-theme">
@@ -322,7 +319,7 @@ const CustomizationCenter: React.FC = () => {
                   </h2>
                   <p className="text-body">Enhance usability and comfort</p>
                 </div>
-                
+
                 <div className="space-y-density-lg">
                   <div className="p-density-md border border-border-primary rounded-lg">
                     <label className="flex items-center justify-between cursor-pointer">
@@ -342,21 +339,19 @@ const CustomizationCenter: React.FC = () => {
                           className="sr-only"
                         />
                         <div
-                          className={`w-12 h-6 rounded-full transition-theme cursor-pointer ${
-                            reducedMotion ? 'bg-primary-600' : 'bg-border-primary'
-                          }`}
+                          className={`w-12 h-6 rounded-full transition-theme cursor-pointer ${reducedMotion ? 'bg-primary-600' : 'bg-border-primary'
+                            }`}
                           onClick={() => setReducedMotion(!reducedMotion)}
                         >
                           <div
-                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                              reducedMotion ? 'translate-x-6' : 'translate-x-0.5'
-                            } mt-0.5`}
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${reducedMotion ? 'translate-x-6' : 'translate-x-0.5'
+                              } mt-0.5`}
                           />
                         </div>
                       </div>
                     </label>
                   </div>
-                  
+
                   <div className="p-density-md border border-border-primary rounded-lg">
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
@@ -375,15 +370,13 @@ const CustomizationCenter: React.FC = () => {
                           className="sr-only"
                         />
                         <div
-                          className={`w-12 h-6 rounded-full transition-theme cursor-pointer ${
-                            highContrast ? 'bg-primary-600' : 'bg-border-primary'
-                          }`}
+                          className={`w-12 h-6 rounded-full transition-theme cursor-pointer ${highContrast ? 'bg-primary-600' : 'bg-border-primary'
+                            }`}
                           onClick={() => setHighContrast(!highContrast)}
                         >
                           <div
-                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                              highContrast ? 'translate-x-6' : 'translate-x-0.5'
-                            } mt-0.5`}
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${highContrast ? 'translate-x-6' : 'translate-x-0.5'
+                              } mt-0.5`}
                           />
                         </div>
                       </div>
@@ -414,9 +407,9 @@ const CustomizationCenter: React.FC = () => {
                   <div className="space-y-4">
                     <div className="form-group">
                       <label className="form-label">Sample Input</label>
-                      <input 
-                        type="text" 
-                        className="input-field" 
+                      <input
+                        type="text"
+                        className="input-field"
                         placeholder="Enter some text..."
                         defaultValue="Sample text content"
                       />
