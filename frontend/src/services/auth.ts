@@ -23,32 +23,32 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await api.post('/auth/login', credentials)
     const { user, token } = response.data
-    
+
     // Store token in localStorage
-    localStorage.setItem('authToken', token)
-    localStorage.setItem('user', JSON.stringify(user))
-    
+    localStorage.setItem('thaitable_token', token)
+    localStorage.setItem('thaitable_user', JSON.stringify(user))
+
     return { user, token }
   },
 
   async register(userData: any): Promise<AuthResponse> {
     const response = await api.post('/auth/register', userData)
     const { user, token } = response.data
-    
+
     // Store token in localStorage
-    localStorage.setItem('authToken', token)
-    localStorage.setItem('user', JSON.stringify(user))
-    
+    localStorage.setItem('thaitable_token', token)
+    localStorage.setItem('thaitable_user', JSON.stringify(user))
+
     return { user, token }
   },
 
   logout(): void {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('user')
+    localStorage.removeItem('thaitable_token')
+    localStorage.removeItem('thaitable_user')
   },
 
   getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('user')
+    const userStr = localStorage.getItem('thaitable_user')
     return userStr ? JSON.parse(userStr) : null
   },
 

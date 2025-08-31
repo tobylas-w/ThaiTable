@@ -31,6 +31,50 @@ const envSchema = z.object({
   // V0 Configuration
   V0_API_KEY: z.string().optional(),
   V0_BASE_URL: z.string().url().optional(),
+
+  // AWS S3 Configuration
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  AWS_REGION: z.string().optional(),
+  AWS_S3_BUCKET: z.string().optional(),
+
+  // Email Service (SendGrid)
+  SENDGRID_API_KEY: z.string().optional(),
+  SENDGRID_FROM_EMAIL: z.string().optional(),
+
+  // SMS Service (Thai SMS Gateway)
+  THAI_SMS_API_KEY: z.string().optional(),
+  THAI_SMS_SENDER: z.string().optional(),
+
+  // LINE Notify
+  LINE_NOTIFY_TOKEN: z.string().optional(),
+
+  // Food Delivery Platforms
+  GRABFOOD_API_KEY: z.string().optional(),
+  GRABFOOD_MERCHANT_ID: z.string().optional(),
+  FOODPANDA_API_KEY: z.string().optional(),
+  FOODPANDA_STORE_ID: z.string().optional(),
+  LINEMAN_API_KEY: z.string().optional(),
+  LINEMAN_CHANNEL_ID: z.string().optional(),
+
+  // Analytics & Monitoring
+  GOOGLE_ANALYTICS_ID: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
+  LOGROCKET_APP_ID: z.string().optional(),
+
+  // Maps & Location
+  GOOGLE_MAPS_API_KEY: z.string().optional(),
+  LINE_MAPS_API_KEY: z.string().optional(),
+
+  // Thai Government APIs
+  THAI_TAX_API_KEY: z.string().optional(),
+  THAI_BUSINESS_API_KEY: z.string().optional(),
+
+  // QR Code Generation
+  QR_CODE_API_KEY: z.string().optional(),
+
+  // Redis (Caching)
+  REDIS_URL: z.string().optional(),
 });
 
 // Validate environment variables

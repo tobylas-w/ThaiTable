@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { randomBytes } from 'crypto';
 import { Request, Response, Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -45,6 +46,31 @@ const changePasswordSchema = z.object({
   body: z.object({
     currentPassword: z.string().min(1, 'Current password is required'),
     newPassword: z.string().min(8, 'New password must be at least 8 characters')
+  })
+});
+
+const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email format')
+  })
+});
+
+const resetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().min(1, 'Reset token is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters')
+  })
+});
+
+const verifyEmailSchema = z.object({
+  body: z.object({
+    token: z.string().min(1, 'Verification token is required')
+  })
+});
+
+const resendVerificationSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email format')
   })
 });
 
@@ -147,10 +173,13 @@ router.post('/login',
     const accessToken = generateToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
-    // Update last login (you might want to add this field to your schema)
+    // Update last login
     await prisma.user.update({
       where: { id: user.id },
-      data: { updatedAt: new Date() }
+      data: {
+        lastLoginAt: new Date(),
+        updatedAt: new Date()
+      }
     });
 
     res.json({
@@ -185,6 +214,15 @@ router.post('/refresh',
 
       if (!decoded.userId || decoded.type !== 'refresh') {
         throw createError.authentication('Invalid refresh token');
+      }
+
+      // Check if token is blacklisted
+      const blacklistedToken = await prisma.refreshTokenBlacklist.findUnique({
+        where: { token: refreshToken }
+      });
+
+      if (blacklistedToken) {
+        throw createError.authentication('Refresh token has been revoked');
       }
 
       // Check if user exists
@@ -333,14 +371,235 @@ router.put('/change-password',
   })
 );
 
-// Logout (client-side token removal, but we can invalidate refresh tokens if needed)
+// Forgot password - send reset email
+router.post('/forgot-password',
+  validateRequest(forgotPasswordSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        restaurant: {
+          select: {
+            name_th: true,
+            name_en: true
+          }
+        }
+      }
+    });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      res.json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.'
+      });
+      return;
+    }
+
+    // Generate reset token
+    const resetToken = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Delete any existing reset tokens for this user
+    await prisma.passwordResetToken.deleteMany({
+      where: { user_id: user.id }
+    });
+
+    // Create new reset token
+    await prisma.passwordResetToken.create({
+      data: {
+        token: resetToken,
+        user_id: user.id,
+        expiresAt
+      }
+    });
+
+    // Send reset email
+    const restaurantName = user.restaurant?.name_en || user.restaurant?.name_th || 'ThaiTable';
+    await emailService.sendPasswordReset(email, resetToken, restaurantName);
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+  })
+);
+
+// Reset password with token
+router.post('/reset-password',
+  validateRequest(resetPasswordSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body;
+
+    // Find valid reset token
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true }
+    });
+
+    if (!resetToken || resetToken.isUsed || resetToken.expiresAt < new Date()) {
+      throw createError.validation('Invalid or expired reset token');
+    }
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update password and mark token as used
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.user_id },
+        data: { password: hashedPassword }
+      }),
+      prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: {
+          isUsed: true,
+          usedAt: new Date()
+        }
+      })
+    ]);
+
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  })
+);
+
+// Send email verification
+router.post('/send-verification',
+  validateRequest(resendVerificationSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        restaurant: {
+          select: {
+            name_th: true,
+            name_en: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      res.json({
+        success: true,
+        message: 'If an account with that email exists, a verification email has been sent.'
+      });
+      return;
+    }
+
+    if (user.isEmailVerified) {
+      throw createError.validation('Email is already verified');
+    }
+
+    // Generate verification token
+    const verificationToken = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Delete any existing verification tokens for this user
+    await prisma.emailVerificationToken.deleteMany({
+      where: { user_id: user.id }
+    });
+
+    // Create new verification token
+    await prisma.emailVerificationToken.create({
+      data: {
+        token: verificationToken,
+        user_id: user.id,
+        expiresAt
+      }
+    });
+
+    // Send verification email
+    const restaurantName = user.restaurant?.name_en || user.restaurant?.name_th || 'ThaiTable';
+    await emailService.sendEmailVerification(email, verificationToken, restaurantName);
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, a verification email has been sent.'
+    });
+  })
+);
+
+// Verify email with token
+router.post('/verify-email',
+  validateRequest(verifyEmailSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.body;
+
+    // Find valid verification token
+    const verificationToken = await prisma.emailVerificationToken.findUnique({
+      where: { token },
+      include: { user: true }
+    });
+
+    if (!verificationToken || verificationToken.isUsed || verificationToken.expiresAt < new Date()) {
+      throw createError.validation('Invalid or expired verification token');
+    }
+
+    // Update user and mark token as used
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: verificationToken.user_id },
+        data: {
+          isEmailVerified: true,
+          emailVerifiedAt: new Date()
+        }
+      }),
+      prisma.emailVerificationToken.update({
+        where: { id: verificationToken.id },
+        data: {
+          isUsed: true,
+          usedAt: new Date()
+        }
+      })
+    ]);
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully'
+    });
+  })
+);
+
+// Logout (with token blacklisting)
 router.post('/logout',
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
-    // In a more advanced implementation, you might want to:
-    // 1. Add refresh tokens to a blacklist
-    // 2. Track user sessions
-    // 3. Force logout from all devices
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+      // Add refresh token to blacklist if provided
+      const refreshToken = req.body.refreshToken;
+      if (refreshToken) {
+        try {
+          const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as any;
+          if (decoded.userId && decoded.type === 'refresh') {
+            // Add to blacklist with expiration
+            const expiresAt = new Date(decoded.exp * 1000);
+            await prisma.refreshTokenBlacklist.create({
+              data: {
+                token: refreshToken,
+                user_id: decoded.userId,
+                expiresAt
+              }
+            }).catch(() => {
+              // Ignore duplicate token errors
+            });
+          }
+        } catch (error) {
+          // Invalid refresh token, ignore
+        }
+      }
+    }
 
     res.json({
       success: true,

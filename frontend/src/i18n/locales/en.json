@@ -55,7 +55,31 @@
     "quickActions": "Quick Actions",
     "newOrder": "New Order",
     "addMenuItem": "Add Menu Item",
-    "viewReports": "View Reports"
+    "viewReports": "View Reports",
+    "averageOrderValue": "Average Order Value",
+    "occupancyRate": "Table Occupancy",
+    "comparedToYesterday": "vs yesterday",
+    "perOrder": "per order",
+    "tableOccupancy": "table usage",
+    "online": "Online",
+    "offline": "Offline",
+    "live": "Live",
+    "paused": "Paused",
+    "viewAllOrders": "View All Orders",
+    "viewMenu": "View Menu",
+    "kitchenStatus": "Kitchen Status",
+    "ordersCompleted": "Orders Completed",
+    "ordersInProgress": "Orders in Progress",
+    "avgPrepTime": "Avg Prep Time",
+    "lowStock": "Low Stock Alert",
+    "checkInventory": "Check inventory levels",
+    "viewKitchen": "View Kitchen",
+    "performanceOverview": "Performance Overview",
+    "todayTarget": "Today's Target",
+    "satisfaction": "Customer Rating",
+    "basedOnReviews": "based on reviews",
+    "efficiency": "Kitchen Efficiency",
+    "orderProcessing": "order processing"
   },
   "menu": {
     "title": "Menu Management",
@@ -166,5 +190,15 @@
     "maxLength": "Maximum {{max}} characters allowed",
     "passwordMatch": "Passwords must match",
     "positiveNumber": "Please enter a positive number"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "clearAll": "Clear All",
+    "viewAll": "View All",
+    "newOrder": "New Order",
+    "orderReady": "Order Ready",
+    "lowStock": "Low Stock",
+    "viewOrder": "View Order"
   }
 }

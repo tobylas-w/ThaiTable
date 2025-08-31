@@ -243,3 +243,41 @@ export const authRateLimit = {
     type: 'RATE_LIMIT_ERROR'
   }
 };
+
+// Cleanup expired tokens (utility function)
+export const cleanupExpiredTokens = async (): Promise<void> => {
+  const now = new Date();
+
+  try {
+    // Clean up expired password reset tokens
+    await prisma.passwordResetToken.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: now } },
+          { isUsed: true, usedAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1000) } } // Delete used tokens older than 24h
+        ]
+      }
+    });
+
+    // Clean up expired email verification tokens
+    await prisma.emailVerificationToken.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: now } },
+          { isUsed: true, usedAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1000) } }
+        ]
+      }
+    });
+
+    // Clean up expired blacklisted refresh tokens
+    await prisma.refreshTokenBlacklist.deleteMany({
+      where: {
+        expiresAt: { lt: now }
+      }
+    });
+
+    console.log('[Auth] Expired tokens cleaned up successfully');
+  } catch (error) {
+    console.error('[Auth] Error cleaning up expired tokens:', error);
+  }
+};

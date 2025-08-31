@@ -17,7 +17,7 @@ export interface DeleteResult {
 
 export class AWSService {
   private static instance: AWSService;
-  private s3: AWS.S3;
+  private s3!: AWS.S3;
   private enabled: boolean;
 
   private constructor() {
@@ -140,17 +140,16 @@ export class AWSService {
       throw new Error('AWS S3 is not configured');
     }
 
-    const params: AWS.S3.PresignedPost.Options = {
+    const params: AWS.S3.GetObjectRequest | AWS.S3.PutObjectRequest = {
       Bucket: integrationConfig.aws.s3Bucket!,
       Key: key,
-      Expires: expiresIn,
     };
 
     try {
       if (operation === 'getObject') {
-        return this.s3.getSignedUrl('getObject', params);
+        return this.s3.getSignedUrl('getObject', params as AWS.S3.GetObjectRequest);
       } else {
-        return this.s3.getSignedUrl('putObject', params);
+        return this.s3.getSignedUrl('putObject', params as AWS.S3.PutObjectRequest);
       }
     } catch (error) {
       console.error('[AWS S3] Signed URL error:', error);

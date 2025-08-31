@@ -1,27 +1,25 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const express_1 = require("express");
-const zod_1 = require("zod");
-const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+import { z } from 'zod';
+const router = Router();
+const prisma = new PrismaClient();
 // Validation schemas
-const createOrderSchema = zod_1.z.object({
-    table_id: zod_1.z.string().uuid().optional(),
-    user_id: zod_1.z.string().uuid(),
-    restaurant_id: zod_1.z.string().uuid(),
-    customer_name: zod_1.z.string().optional(),
-    customer_phone: zod_1.z.string().optional(),
-    notes: zod_1.z.string().optional(),
-    order_items: zod_1.z.array(zod_1.z.object({
-        menu_id: zod_1.z.string().uuid(),
-        quantity: zod_1.z.number().positive(),
-        unit_price_thb: zod_1.z.number().positive(),
-        notes: zod_1.z.string().optional()
+const createOrderSchema = z.object({
+    table_id: z.string().uuid().optional(),
+    user_id: z.string().uuid(),
+    restaurant_id: z.string().uuid(),
+    customer_name: z.string().optional(),
+    customer_phone: z.string().optional(),
+    notes: z.string().optional(),
+    order_items: z.array(z.object({
+        menu_id: z.string().uuid(),
+        quantity: z.number().positive(),
+        unit_price_thb: z.number().positive(),
+        notes: z.string().optional()
     })).min(1, 'Order must have at least one item'),
-    payment_method: zod_1.z.enum(['CASH', 'PROMPTPAY', 'TRUEMONEY', 'SCB_EASY', 'CREDIT_CARD', 'LINE_PAY', 'AIRPAY']).optional(),
-    service_charge_percentage: zod_1.z.number().min(0).max(20).default(10), // 10% default service charge
-    tax_rate: zod_1.z.number().min(0).max(20).default(7) // 7% VAT default
+    payment_method: z.enum(['CASH', 'PROMPTPAY', 'TRUEMONEY', 'SCB_EASY', 'CREDIT_CARD', 'LINE_PAY', 'AIRPAY']).optional(),
+    service_charge_percentage: z.number().min(0).max(20).default(10), // 10% default service charge
+    tax_rate: z.number().min(0).max(20).default(7) // 7% VAT default
 });
 const updateOrderSchema = createOrderSchema.partial().omit({ restaurant_id: true });
 // Get all orders for a restaurant with comprehensive filtering
@@ -187,7 +185,7 @@ router.post('/', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -386,11 +384,16 @@ router.patch('/:id/cancel', async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
+        // First get the current order to access its notes
+        const currentOrder = await prisma.order.findUnique({
+            where: { id },
+            select: { notes: true }
+        });
         const order = await prisma.order.update({
             where: { id },
             data: {
                 status: 'CANCELLED',
-                notes: reason ? `${order?.notes || ''}\n[ยกเลิก]: ${reason}` : order?.notes
+                notes: reason ? `${currentOrder?.notes || ''}\n[ยกเลิก]: ${reason}` : currentOrder?.notes
             },
             include: {
                 user: {
@@ -490,4 +493,4 @@ router.get('/restaurant/:restaurantId/stats', async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

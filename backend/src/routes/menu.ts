@@ -32,317 +32,331 @@ const updateMenuSchema = createMenuSchema.partial().omit({ restaurant_id: true }
 
 // Get all menu items for a restaurant with categories
 router.get('/:restaurantId', async (req, res) => {
-    try {
-        const { restaurantId } = req.params;
-        const { category, available, search } = req.query;
+  try {
+    const { restaurantId } = req.params;
+    const { category, available, search } = req.query;
 
-        const where: any = { restaurant_id: restaurantId };
+    const where: any = { restaurant_id: restaurantId };
 
-        if (category) {
-            where.category_id = category;
-        }
-
-        if (available !== undefined) {
-            where.is_available = available === 'true';
-        }
-
-        if (search) {
-            where.OR = [
-                { name_th: { contains: search as string, mode: 'insensitive' } },
-                { name_en: { contains: search as string, mode: 'insensitive' } },
-                { description_th: { contains: search as string, mode: 'insensitive' } },
-                { description_en: { contains: search as string, mode: 'insensitive' } }
-            ];
-        }
-
-        const menuItems = await prisma.menu.findMany({
-            where,
-            include: {
-                category: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
-                    }
-                }
-            },
-            orderBy: [
-                { category: { sort_order: 'asc' } },
-                { sort_order: 'asc' },
-                { name_th: 'asc' }
-            ]
-        });
-
-        res.json({
-            success: true,
-            data: menuItems,
-            count: menuItems.length
-        });
-    } catch (error) {
-        console.error('Get menu error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู' 
-        });
+    if (category) {
+      where.category_id = category;
     }
+
+    if (available !== undefined) {
+      where.is_available = available === 'true';
+    }
+
+    if (search) {
+      where.OR = [
+        { name_th: { contains: search as string, mode: 'insensitive' } },
+        { name_en: { contains: search as string, mode: 'insensitive' } },
+        { description_th: { contains: search as string, mode: 'insensitive' } },
+        { description_en: { contains: search as string, mode: 'insensitive' } }
+      ];
+    }
+
+    const menuItems = await prisma.menu.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name_th: true,
+            name_en: true
+          }
+        }
+      },
+      orderBy: [
+        { category: { sort_order: 'asc' } },
+        { sort_order: 'asc' },
+        { name_th: 'asc' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: menuItems,
+      count: menuItems.length
+    });
+  } catch (error) {
+    console.error('Get menu error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู'
+    });
+  }
 });
 
 // Get menu item by ID
 router.get('/item/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const menuItem = await prisma.menu.findUnique({
-            where: { id },
-            include: {
-                category: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
-                    }
-                }
-            }
-        });
-
-        if (!menuItem) {
-            return res.status(404).json({
-                success: false,
-                message: 'ไม่พบรายการเมนูนี้'
-            });
+    const menuItem = await prisma.menu.findUnique({
+      where: { id },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name_th: true,
+            name_en: true
+          }
         }
+      }
+    });
 
-        res.json({
-            success: true,
-            data: menuItem
-        });
-    } catch (error) {
-        console.error('Get menu item error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู'
-        });
+    if (!menuItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบรายการเมนูนี้'
+      });
     }
+
+    res.json({
+      success: true,
+      data: menuItem
+    });
+  } catch (error) {
+    console.error('Get menu item error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู'
+    });
+  }
 });
 
 // Create new menu item
 router.post('/', async (req, res) => {
-    try {
-        const validatedData = createMenuSchema.parse(req.body);
+  try {
+    const validatedData = createMenuSchema.parse(req.body);
 
-        const menuItem = await prisma.menu.create({
-            data: {
-                ...validatedData,
-                price_thb: validatedData.price_thb,
-                cost_thb: validatedData.cost_thb || null
-            },
-            include: {
-                category: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
-                    }
-                }
-            }
-        });
-
-        res.status(201).json({
-            success: true,
-            message: 'เพิ่มเมนูสำเร็จ',
-            data: menuItem
-        });
-    } catch (error) {
-        if (error instanceof z.ZodError) {
-            return res.status(400).json({
-                success: false,
-                message: 'ข้อมูลไม่ถูกต้อง',
-                errors: error.errors
-            });
+    const menuItem = await prisma.menu.create({
+      data: {
+        ...validatedData,
+        price_thb: validatedData.price_thb,
+        cost_thb: validatedData.cost_thb || null,
+        allergens: validatedData.allergens.join(', '), // Convert array to comma-separated string
+        nutritional_info: validatedData.nutritional_info ? JSON.stringify(validatedData.nutritional_info) : null
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name_th: true,
+            name_en: true
+          }
         }
+      }
+    });
 
-        console.error('Create menu error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการเพิ่มเมนู'
-        });
+    res.status(201).json({
+      success: true,
+      message: 'เพิ่มเมนูสำเร็จ',
+      data: menuItem
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: 'ข้อมูลไม่ถูกต้อง',
+        errors: error.errors
+      });
     }
+
+    console.error('Create menu error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการเพิ่มเมนู'
+    });
+  }
 });
 
 // Update menu item
 router.put('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const validatedData = updateMenuSchema.parse(req.body);
+  try {
+    const { id } = req.params;
+    const validatedData = updateMenuSchema.parse(req.body);
 
-        // Check if menu item exists
-        const existingItem = await prisma.menu.findUnique({
-            where: { id }
-        });
+    // Check if menu item exists
+    const existingItem = await prisma.menu.findUnique({
+      where: { id }
+    });
 
-        if (!existingItem) {
-            return res.status(404).json({
-                success: false,
-                message: 'ไม่พบรายการเมนูนี้'
-            });
-        }
-
-        const menuItem = await prisma.menu.update({
-            where: { id },
-            data: {
-                ...validatedData,
-                price_thb: validatedData.price_thb ? validatedData.price_thb : undefined,
-                cost_thb: validatedData.cost_thb || null
-            },
-            include: {
-                category: {
-                    select: {
-                        id: true,
-                        name_th: true,
-                        name_en: true
-                    }
-                }
-            }
-        });
-
-        res.json({
-            success: true,
-            message: 'อัปเดตเมนูสำเร็จ',
-            data: menuItem
-        });
-    } catch (error) {
-        if (error instanceof z.ZodError) {
-            return res.status(400).json({
-                success: false,
-                message: 'ข้อมูลไม่ถูกต้อง',
-                errors: error.errors
-            });
-        }
-
-        console.error('Update menu error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการอัปเดตเมนู'
-        });
+    if (!existingItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบรายการเมนูนี้'
+      });
     }
+
+    const updateData: any = {
+      ...validatedData,
+      price_thb: validatedData.price_thb ? validatedData.price_thb : undefined,
+      cost_thb: validatedData.cost_thb || null
+    };
+
+    // Convert allergens array to string if provided
+    if (validatedData.allergens !== undefined) {
+      updateData.allergens = validatedData.allergens.join(', ');
+    }
+
+    // Convert nutritional_info to JSON string if provided
+    if (validatedData.nutritional_info !== undefined) {
+      updateData.nutritional_info = validatedData.nutritional_info ? JSON.stringify(validatedData.nutritional_info) : null;
+    }
+
+    const menuItem = await prisma.menu.update({
+      where: { id },
+      data: updateData,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name_th: true,
+            name_en: true
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'อัปเดตเมนูสำเร็จ',
+      data: menuItem
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: 'ข้อมูลไม่ถูกต้อง',
+        errors: error.errors
+      });
+    }
+
+    console.error('Update menu error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการอัปเดตเมนู'
+    });
+  }
 });
 
 // Delete menu item
 router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        // Check if menu item exists
-        const existingItem = await prisma.menu.findUnique({
-            where: { id }
-        });
+    // Check if menu item exists
+    const existingItem = await prisma.menu.findUnique({
+      where: { id }
+    });
 
-        if (!existingItem) {
-            return res.status(404).json({
-                success: false,
-                message: 'ไม่พบรายการเมนูนี้'
-            });
-        }
-
-        // Check if menu item is used in any orders
-        const orderItems = await prisma.orderItem.findFirst({
-            where: { menu_id: id }
-        });
-
-        if (orderItems) {
-            return res.status(400).json({
-                success: false,
-                message: 'ไม่สามารถลบเมนูได้เนื่องจากมีการใช้งานในออเดอร์แล้ว'
-            });
-        }
-
-        await prisma.menu.delete({
-            where: { id }
-        });
-
-        res.json({
-            success: true,
-            message: 'ลบเมนูสำเร็จ'
-        });
-    } catch (error) {
-        console.error('Delete menu error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการลบเมนู'
-        });
+    if (!existingItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบรายการเมนูนี้'
+      });
     }
+
+    // Check if menu item is used in any orders
+    const orderItems = await prisma.orderItem.findFirst({
+      where: { menu_id: id }
+    });
+
+    if (orderItems) {
+      return res.status(400).json({
+        success: false,
+        message: 'ไม่สามารถลบเมนูได้เนื่องจากมีการใช้งานในออเดอร์แล้ว'
+      });
+    }
+
+    await prisma.menu.delete({
+      where: { id }
+    });
+
+    res.json({
+      success: true,
+      message: 'ลบเมนูสำเร็จ'
+    });
+  } catch (error) {
+    console.error('Delete menu error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการลบเมนู'
+    });
+  }
 });
 
 // Bulk update menu availability
 router.patch('/bulk-availability', async (req, res) => {
-    try {
-        const { restaurant_id, menu_ids, is_available } = req.body;
+  try {
+    const { restaurant_id, menu_ids, is_available } = req.body;
 
-        if (!Array.isArray(menu_ids) || menu_ids.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'กรุณาเลือกเมนูที่ต้องการอัปเดต'
-            });
-        }
-
-        await prisma.menu.updateMany({
-            where: {
-                id: { in: menu_ids },
-                restaurant_id: restaurant_id
-            },
-            data: {
-                is_available: is_available
-            }
-        });
-
-        res.json({
-            success: true,
-            message: `อัปเดตสถานะเมนู ${is_available ? 'เปิดใช้งาน' : 'ปิดใช้งาน'} สำเร็จ`
-        });
-    } catch (error) {
-        console.error('Bulk update menu error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะเมนู'
-        });
+    if (!Array.isArray(menu_ids) || menu_ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณาเลือกเมนูที่ต้องการอัปเดต'
+      });
     }
+
+    await prisma.menu.updateMany({
+      where: {
+        id: { in: menu_ids },
+        restaurant_id: restaurant_id
+      },
+      data: {
+        is_available: is_available
+      }
+    });
+
+    res.json({
+      success: true,
+      message: `อัปเดตสถานะเมนู ${is_available ? 'เปิดใช้งาน' : 'ปิดใช้งาน'} สำเร็จ`
+    });
+  } catch (error) {
+    console.error('Bulk update menu error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการอัปเดตสถานะเมนู'
+    });
+  }
 });
 
 // Get menu statistics
 router.get('/:restaurantId/stats', async (req, res) => {
-    try {
-        const { restaurantId } = req.params;
+  try {
+    const { restaurantId } = req.params;
 
-        const stats = await prisma.menu.groupBy({
-            by: ['is_available'],
-            where: { restaurant_id: restaurantId },
-            _count: {
-                id: true
-            }
-        });
+    const stats = await prisma.menu.groupBy({
+      by: ['is_available'],
+      where: { restaurant_id: restaurantId },
+      _count: {
+        id: true
+      }
+    });
 
-        const totalItems = await prisma.menu.count({
-            where: { restaurant_id: restaurantId }
-        });
+    const totalItems = await prisma.menu.count({
+      where: { restaurant_id: restaurantId }
+    });
 
-        const availableItems = stats.find(s => s.is_available)?._count.id || 0;
-        const unavailableItems = stats.find(s => !s.is_available)?._count.id || 0;
+    const availableItems = stats.find(s => s.is_available)?._count.id || 0;
+    const unavailableItems = stats.find(s => !s.is_available)?._count.id || 0;
 
-        res.json({
-            success: true,
-            data: {
-                total: totalItems,
-                available: availableItems,
-                unavailable: unavailableItems
-            }
-        });
-    } catch (error) {
-        console.error('Get menu stats error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงสถิติเมนู'
-        });
-    }
+    res.json({
+      success: true,
+      data: {
+        total: totalItems,
+        available: availableItems,
+        unavailable: unavailableItems
+      }
+    });
+  } catch (error) {
+    console.error('Get menu stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงสถิติเมนู'
+    });
+  }
 });
 
 export default router;

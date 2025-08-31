@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import NotificationSystem, { useNotifications } from './NotificationSystem';
 
 const Layout = () => {
   const { t, i18n } = useTranslation();
@@ -20,6 +21,42 @@ const Layout = () => {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Notification system
+  const {
+    notifications,
+    markAsRead,
+    dismiss,
+    clearAll,
+    notifySuccess,
+    notifyError,
+    notifyWarning,
+    notifyOrder
+  } = useNotifications();
+
+  // Demo notifications (in real app, these would come from WebSocket or API)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const orderNotifications = [
+        { title: t('notifications.newOrder'), message: 'Order #1234 from Table A1' },
+        { title: t('notifications.orderReady'), message: 'Order #1233 is ready for serving' },
+        { title: t('notifications.lowStock'), message: 'Pad Thai ingredients running low' }
+      ];
+
+      const randomNotification = orderNotifications[Math.floor(Math.random() * orderNotifications.length)];
+
+      if (Math.random() > 0.8) { // 20% chance every 30 seconds
+        notifyOrder(randomNotification.title, randomNotification.message, {
+          action: {
+            label: t('notifications.viewOrder'),
+            onClick: () => {/* Navigate to orders */ }
+          }
+        });
+      }
+    }, 30000); // Every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [notifyOrder, t]);
 
   const navigation = [
     { name: t('navigation.dashboard'), href: '/', icon: Home },
@@ -85,13 +122,13 @@ const Layout = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               {/* Mobile menu button */}
-                              <button
-                  type="button"
-                  className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500"
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-expanded={isMobileMenuOpen ? 'true' : 'false'}
-                  aria-label="เปิดเมนู"
-                >
+              <button
+                type="button"
+                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-expanded={isMobileMenuOpen}
+                aria-label="เปิดเมนู"
+              >
                 {isMobileMenuOpen ? (
                   <X className="block h-6 w-6" aria-hidden="true" />
                 ) : (
@@ -116,11 +153,10 @@ const Layout = () => {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
-                        isActive
+                      className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive
                           ? 'border-yellow-500 text-gray-900'
                           : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      }`}
+                        }`}
                       aria-current={isActive ? 'page' : undefined}
                     >
                       <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -139,7 +175,7 @@ const Layout = () => {
                   onClick={() => setIsLanguageOpen(!isLanguageOpen)}
                   onKeyDown={(e) => handleKeyDown(e, () => setIsLanguageOpen(!isLanguageOpen))}
                   className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-md transition-colors"
-                  aria-expanded={isLanguageOpen ? 'true' : 'false'}
+                  aria-expanded={isLanguageOpen}
                   aria-haspopup="true"
                   aria-label="เลือกภาษา"
                 >
@@ -171,6 +207,15 @@ const Layout = () => {
                 )}
               </div>
 
+              {/* Notification System */}
+              <NotificationSystem
+                notifications={notifications}
+                onMarkAsRead={markAsRead}
+                onDismiss={dismiss}
+                onClearAll={clearAll}
+                maxVisible={5}
+              />
+
               {/* User Menu */}
               <div className="relative dropdown-container">
                 <button
@@ -178,7 +223,7 @@ const Layout = () => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   onKeyDown={(e) => handleKeyDown(e, () => setIsUserMenuOpen(!isUserMenuOpen))}
                   className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-md transition-colors"
-                  aria-expanded={isUserMenuOpen ? 'true' : 'false'}
+                  aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                   aria-label="เมนูผู้ใช้"
                 >
@@ -217,11 +262,10 @@ const Layout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                      isActive
+                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                      }`}
                     aria-current={isActive ? 'page' : undefined}
                   >
                     <Icon className="h-5 w-5 mr-3" aria-hidden="true" />

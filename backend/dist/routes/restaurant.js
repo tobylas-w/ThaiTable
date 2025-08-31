@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const express_1 = require("express");
-const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+const router = Router();
+const prisma = new PrismaClient();
 // Get restaurant by ID
 router.get('/:id', async (req, res) => {
     try {
@@ -145,4 +143,4 @@ router.get('/:id/stats', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-exports.default = router;
+export default router;

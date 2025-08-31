@@ -1,19 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const express_1 = require("express");
-const zod_1 = require("zod");
-const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+import { z } from 'zod';
+const router = Router();
+const prisma = new PrismaClient();
 // Validation schemas
-const createCategorySchema = zod_1.z.object({
-    restaurant_id: zod_1.z.string().uuid(),
-    name_th: zod_1.z.string().min(1, 'Thai name is required'),
-    name_en: zod_1.z.string().min(1, 'English name is required'),
-    description_th: zod_1.z.string().optional(),
-    description_en: zod_1.z.string().optional(),
-    sort_order: zod_1.z.number().default(0),
-    is_active: zod_1.z.boolean().default(true)
+const createCategorySchema = z.object({
+    restaurant_id: z.string().uuid(),
+    name_th: z.string().min(1, 'Thai name is required'),
+    name_en: z.string().min(1, 'English name is required'),
+    description_th: z.string().optional(),
+    description_en: z.string().optional(),
+    sort_order: z.number().default(0),
+    is_active: z.boolean().default(true)
 });
 const updateCategorySchema = createCategorySchema.partial().omit({ restaurant_id: true });
 // Get all categories for a restaurant
@@ -100,7 +98,7 @@ router.post('/', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -140,7 +138,7 @@ router.put('/:id', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -233,4 +231,4 @@ router.patch('/reorder', async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

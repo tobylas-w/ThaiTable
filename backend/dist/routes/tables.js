@@ -1,18 +1,16 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const express_1 = require("express");
-const zod_1 = require("zod");
-const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+import { z } from 'zod';
+const router = Router();
+const prisma = new PrismaClient();
 // Validation schemas
-const createTableSchema = zod_1.z.object({
-    restaurant_id: zod_1.z.string().uuid(),
-    table_number: zod_1.z.string().min(1, 'Table number is required'),
-    capacity: zod_1.z.number().min(1, 'Capacity must be at least 1'),
-    location_x: zod_1.z.number().optional(),
-    location_y: zod_1.z.number().optional(),
-    status: zod_1.z.enum(['AVAILABLE', 'OCCUPIED', 'RESERVED', 'CLEANING', 'OUT_OF_SERVICE']).default('AVAILABLE')
+const createTableSchema = z.object({
+    restaurant_id: z.string().uuid(),
+    table_number: z.string().min(1, 'Table number is required'),
+    capacity: z.number().min(1, 'Capacity must be at least 1'),
+    location_x: z.number().optional(),
+    location_y: z.number().optional(),
+    status: z.enum(['AVAILABLE', 'OCCUPIED', 'RESERVED', 'CLEANING', 'OUT_OF_SERVICE']).default('AVAILABLE')
 });
 const updateTableSchema = createTableSchema.partial().omit({ restaurant_id: true });
 // Get all tables for a restaurant
@@ -122,7 +120,7 @@ router.post('/', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -178,7 +176,7 @@ router.put('/:id', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -341,4 +339,4 @@ router.patch('/:restaurantId/positions', async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

@@ -29,18 +29,23 @@ model Restaurant {
 }
 
 model User {
-  id            String     @id @default(uuid())
-  email         String     @unique
-  password      String
-  role          String
-  name_th       String
-  name_en       String
-  phone         String?
-  restaurant_id String
-  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id])
-  orders        Order[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id                      String                   @id @default(uuid())
+  email                   String                   @unique
+  password                String
+  role                    String
+  name_th                 String
+  name_en                 String
+  phone                   String?
+  restaurant_id           String
+  restaurant              Restaurant               @relation(fields: [restaurant_id], references: [id])
+  orders                  Order[]
+  isEmailVerified         Boolean                  @default(false)
+  emailVerifiedAt         DateTime?
+  lastLoginAt             DateTime?
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 }
 
 // Role enum values as strings
@@ -152,3 +157,35 @@ model OrderItem {
 
 // PaymentStatus enum values as strings
 // PENDING, PAID, FAILED, REFUNDED
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  user_id   String
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  user_id   String
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model RefreshTokenBlacklist {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user_id   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

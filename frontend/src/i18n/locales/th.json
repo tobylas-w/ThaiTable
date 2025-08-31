@@ -56,7 +56,31 @@
     "quickActions": "การดำเนินการด่วน",
     "newOrder": "ออเดอร์ใหม่",
     "addMenuItem": "เพิ่มเมนู",
-    "viewReports": "ดูรายงาน"
+    "viewReports": "ดูรายงาน",
+    "averageOrderValue": "มูลค่าออเดอร์เฉลี่ย",
+    "occupancyRate": "อัตราการใช้โต๊ะ",
+    "comparedToYesterday": "เทียบกับเมื่อวาน",
+    "perOrder": "ต่อออเดอร์",
+    "tableOccupancy": "การใช้โต๊ะ",
+    "online": "ออนไลน์",
+    "offline": "ออฟไลน์",
+    "live": "สด",
+    "paused": "หยุดชั่วคราว",
+    "viewAllOrders": "ดูออเดอร์ทั้งหมด",
+    "viewMenu": "ดูเมนู",
+    "kitchenStatus": "สถานะครัว",
+    "ordersCompleted": "ออเดอร์ที่เสร็จแล้ว",
+    "ordersInProgress": "ออเดอร์ที่กำลังทำ",
+    "avgPrepTime": "เวลาเตรียมเฉลี่ย",
+    "lowStock": "แจ้งเตือนสต็อกต่ำ",
+    "checkInventory": "ตรวจสอบระดับสต็อก",
+    "viewKitchen": "ดูครัว",
+    "performanceOverview": "ภาพรวมประสิทธิภาพ",
+    "todayTarget": "เป้าหมายวันนี้",
+    "satisfaction": "คะแนนลูกค้า",
+    "basedOnReviews": "จากรีวิว",
+    "efficiency": "ประสิทธิภาพครัว",
+    "orderProcessing": "การประมวลผลออเดอร์"
   },
   "menu": {
     "title": "จัดการเมนู",
@@ -222,5 +246,15 @@
     "maxLength": "ต้องมีไม่เกิน {{max}} ตัวอักษร",
     "passwordMatch": "รหัสผ่านไม่ตรงกัน",
     "positiveNumber": "กรุณากรอกตัวเลขที่เป็นบวก"
+  },
+  "notifications": {
+    "title": "การแจ้งเตือน",
+    "empty": "ยังไม่มีการแจ้งเตือน",
+    "clearAll": "ล้างทั้งหมด",
+    "viewAll": "ดูทั้งหมด",
+    "newOrder": "ออเดอร์ใหม่",
+    "orderReady": "ออเดอร์พร้อมเสิร์ฟ",
+    "lowStock": "สต็อกต่ำ",
+    "viewOrder": "ดูออเดอร์"
   }
 }

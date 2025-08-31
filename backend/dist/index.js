@@ -1,21 +1,17 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const cors_1 = __importDefault(require("cors"));
-const express_1 = __importDefault(require("express"));
-const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const helmet_1 = __importDefault(require("helmet"));
-const env_1 = require("./config/env");
-const errorHandler_1 = require("./middleware/errorHandler");
-const routes_1 = __importDefault(require("./routes"));
-const prisma = new client_1.PrismaClient();
-const app = (0, express_1.default)();
-const PORT = env_1.config.PORT;
+import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import { config } from './config/env';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { heliconeMiddleware, heliconeLogging } from './middleware/helicone';
+import routes from './routes';
+const prisma = new PrismaClient();
+const app = express();
+const PORT = config.PORT;
 // Security middleware
-app.use((0, helmet_1.default)({
+app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
@@ -26,7 +22,7 @@ app.use((0, helmet_1.default)({
     },
 }));
 // Rate limiting
-const limiter = (0, express_rate_limit_1.default)({
+const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: {
@@ -39,7 +35,7 @@ const limiter = (0, express_rate_limit_1.default)({
 });
 app.use('/api/', limiter);
 // CORS configuration
-app.use((0, cors_1.default)({
+app.use(cors({
     origin: process.env.NODE_ENV === 'production'
         ? ['https://thaitable.com', 'https://app.thaitable.com']
         : ['http://localhost:3000', 'http://localhost:5173'],
@@ -48,8 +44,11 @@ app.use((0, cors_1.default)({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 // Body parsing middleware
-app.use(express_1.default.json({ limit: '10mb' }));
-app.use(express_1.default.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+// Helicone middleware (add before request logging)
+app.use(heliconeMiddleware);
+app.use(heliconeLogging);
 // Request logging middleware
 app.use((req, res, next) => {
     const start = Date.now();
@@ -60,7 +59,7 @@ app.use((req, res, next) => {
     next();
 });
 // API routes
-app.use('/api/v1', routes_1.default);
+app.use('/api/v1', routes);
 // Health check endpoint
 app.get('/health', (_req, res) => {
     res.json({
@@ -83,9 +82,9 @@ app.get('/', (_req, res) => {
     });
 });
 // 404 handler for unmatched routes
-app.use('*', errorHandler_1.notFoundHandler);
+app.use('*', notFoundHandler);
 // Error handling middleware (must be last)
-app.use(errorHandler_1.errorHandler);
+app.use(errorHandler);
 // Graceful shutdown handling
 const gracefulShutdown = async (signal) => {
     console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);

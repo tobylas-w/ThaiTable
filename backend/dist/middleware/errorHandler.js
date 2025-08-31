@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorUtils = exports.rateLimitErrorHandler = exports.validateRequest = exports.notFoundHandler = exports.asyncHandler = exports.errorHandler = exports.createError = exports.CustomError = exports.ErrorSeverity = exports.ErrorType = void 0;
-const zod_1 = require("zod");
-const client_1 = require("@prisma/client");
+import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
 // Error types for better categorization
-var ErrorType;
+export var ErrorType;
 (function (ErrorType) {
     ErrorType["VALIDATION"] = "VALIDATION";
     ErrorType["AUTHENTICATION"] = "AUTHENTICATION";
@@ -14,17 +11,17 @@ var ErrorType;
     ErrorType["DATABASE"] = "DATABASE";
     ErrorType["EXTERNAL"] = "EXTERNAL";
     ErrorType["INTERNAL"] = "INTERNAL";
-})(ErrorType || (exports.ErrorType = ErrorType = {}));
+})(ErrorType || (ErrorType = {}));
 // Error severity levels
-var ErrorSeverity;
+export var ErrorSeverity;
 (function (ErrorSeverity) {
     ErrorSeverity["LOW"] = "LOW";
     ErrorSeverity["MEDIUM"] = "MEDIUM";
     ErrorSeverity["HIGH"] = "HIGH";
     ErrorSeverity["CRITICAL"] = "CRITICAL";
-})(ErrorSeverity || (exports.ErrorSeverity = ErrorSeverity = {}));
+})(ErrorSeverity || (ErrorSeverity = {}));
 // Create custom error class
-class CustomError extends Error {
+export class CustomError extends Error {
     constructor(message, type, statusCode, severity = ErrorSeverity.MEDIUM, code, details) {
         super(message);
         this.name = 'CustomError';
@@ -36,9 +33,8 @@ class CustomError extends Error {
         this.timestamp = new Date().toISOString();
     }
 }
-exports.CustomError = CustomError;
 // Error factory functions
-exports.createError = {
+export const createError = {
     validation: (message, details, code) => new CustomError(message, ErrorType.VALIDATION, 400, ErrorSeverity.LOW, code, details),
     authentication: (message = 'Authentication required', code) => new CustomError(message, ErrorType.AUTHENTICATION, 401, ErrorSeverity.HIGH, code),
     authorization: (message = 'Access denied', code) => new CustomError(message, ErrorType.AUTHORIZATION, 403, ErrorSeverity.HIGH, code),
@@ -90,49 +86,49 @@ const generateRequestId = () => {
     return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 // Main error handling middleware
-const errorHandler = (error, req, res, next) => {
+export const errorHandler = (error, req, res, next) => {
     let appError;
     const requestId = generateRequestId();
     // Handle different error types
     if (error instanceof CustomError) {
         appError = error;
     }
-    else if (error instanceof zod_1.ZodError) {
+    else if (error instanceof ZodError) {
         // Handle Zod validation errors
-        appError = exports.createError.validation('Validation failed', error.errors.map(err => ({
+        appError = createError.validation('Validation failed', error.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code
         })), 'VALIDATION_ERROR');
     }
-    else if (error instanceof client_1.Prisma.PrismaClientKnownRequestError) {
+    else if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Handle Prisma database errors
         switch (error.code) {
             case 'P2002':
-                appError = exports.createError.conflict('Duplicate entry found', { field: error.meta?.target }, 'DUPLICATE_ENTRY');
+                appError = createError.conflict('Duplicate entry found', { field: error.meta?.target }, 'DUPLICATE_ENTRY');
                 break;
             case 'P2025':
-                appError = exports.createError.notFound('Record not found', 'RECORD_NOT_FOUND');
+                appError = createError.notFound('Record not found', 'RECORD_NOT_FOUND');
                 break;
             case 'P2003':
-                appError = exports.createError.validation('Foreign key constraint failed', { field: error.meta?.field_name }, 'FOREIGN_KEY_ERROR');
+                appError = createError.validation('Foreign key constraint failed', { field: error.meta?.field_name }, 'FOREIGN_KEY_ERROR');
                 break;
             default:
-                appError = exports.createError.database('Database operation failed', { code: error.code, meta: error.meta }, 'DATABASE_ERROR');
+                appError = createError.database('Database operation failed', { code: error.code, meta: error.meta }, 'DATABASE_ERROR');
         }
     }
-    else if (error instanceof client_1.Prisma.PrismaClientValidationError) {
-        appError = exports.createError.validation('Invalid data provided', { message: error.message }, 'PRISMA_VALIDATION_ERROR');
+    else if (error instanceof Prisma.PrismaClientValidationError) {
+        appError = createError.validation('Invalid data provided', { message: error.message }, 'PRISMA_VALIDATION_ERROR');
     }
     else if (error.name === 'JsonWebTokenError') {
-        appError = exports.createError.authentication('Invalid token', 'INVALID_TOKEN');
+        appError = createError.authentication('Invalid token', 'INVALID_TOKEN');
     }
     else if (error.name === 'TokenExpiredError') {
-        appError = exports.createError.authentication('Token expired', 'TOKEN_EXPIRED');
+        appError = createError.authentication('Token expired', 'TOKEN_EXPIRED');
     }
     else {
         // Handle unknown errors
-        appError = exports.createError.internal(process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message, process.env.NODE_ENV === 'development' ? { stack: error.stack } : undefined, 'UNKNOWN_ERROR');
+        appError = createError.internal(process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message, process.env.NODE_ENV === 'development' ? { stack: error.stack } : undefined, 'UNKNOWN_ERROR');
     }
     // Add request context
     appError.requestId = requestId;
@@ -153,17 +149,15 @@ const errorHandler = (error, req, res, next) => {
     // Send error response
     res.status(appError.statusCode).json(errorResponse);
 };
-exports.errorHandler = errorHandler;
 // Async error wrapper middleware
-const asyncHandler = (fn) => {
+export const asyncHandler = (fn) => {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
 };
-exports.asyncHandler = asyncHandler;
 // 404 handler for unmatched routes
-const notFoundHandler = (req, res) => {
-    const error = exports.createError.notFound(`Route ${req.method} ${req.url} not found`, 'ROUTE_NOT_FOUND');
+export const notFoundHandler = (req, res) => {
+    const error = createError.notFound(`Route ${req.method} ${req.url} not found`, 'ROUTE_NOT_FOUND');
     error.requestId = generateRequestId();
     const errorResponse = {
         success: false,
@@ -175,9 +169,8 @@ const notFoundHandler = (req, res) => {
     };
     res.status(404).json(errorResponse);
 };
-exports.notFoundHandler = notFoundHandler;
 // Request validation middleware
-const validateRequest = (schema) => {
+export const validateRequest = (schema) => {
     return (req, res, next) => {
         try {
             const validatedData = schema.parse({
@@ -191,8 +184,8 @@ const validateRequest = (schema) => {
             next();
         }
         catch (error) {
-            if (error instanceof zod_1.ZodError) {
-                next(exports.createError.validation('Request validation failed', error.errors.map(err => ({
+            if (error instanceof ZodError) {
+                next(createError.validation('Request validation failed', error.errors.map(err => ({
                     field: err.path.join('.'),
                     message: err.message,
                     code: err.code
@@ -204,10 +197,9 @@ const validateRequest = (schema) => {
         }
     };
 };
-exports.validateRequest = validateRequest;
 // Rate limiting error handler
-const rateLimitErrorHandler = (req, res) => {
-    const error = exports.createError.validation('Too many requests. Please try again later.', { retryAfter: req.get('Retry-After') }, 'RATE_LIMIT_EXCEEDED');
+export const rateLimitErrorHandler = (req, res) => {
+    const error = createError.validation('Too many requests. Please try again later.', { retryAfter: req.get('Retry-After') }, 'RATE_LIMIT_EXCEEDED');
     error.requestId = generateRequestId();
     const errorResponse = {
         success: false,
@@ -220,10 +212,9 @@ const rateLimitErrorHandler = (req, res) => {
     };
     res.status(429).json(errorResponse);
 };
-exports.rateLimitErrorHandler = rateLimitErrorHandler;
 // Export error utilities
-exports.errorUtils = {
-    createError: exports.createError,
+export const errorUtils = {
+    createError,
     generateRequestId,
     logError
 };

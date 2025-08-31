@@ -1,30 +1,66 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.env = void 0;
-const dotenv_1 = __importDefault(require("dotenv"));
-const zod_1 = require("zod");
+import dotenv from 'dotenv';
+import { z } from 'zod';
 // Load .env file into process.env
 if (process.env.NODE_ENV !== 'production') {
-    dotenv_1.default.config();
+    dotenv.config();
 }
 // Environment validation schema
-const envSchema = zod_1.z.object({
-    NODE_ENV: zod_1.z.enum(['development', 'production', 'test']).default('development'),
-    PORT: zod_1.z.string().transform(Number).pipe(zod_1.z.number().min(1).max(65535)).default('3000'),
-    DATABASE_URL: zod_1.z.string().min(1, 'DATABASE_URL is required'),
-    JWT_SECRET: zod_1.z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-    JWT_REFRESH_SECRET: zod_1.z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-    JWT_EXPIRES_IN: zod_1.z.string().default('24h'),
-    JWT_REFRESH_EXPIRES_IN: zod_1.z.string().default('7d'),
-    CORS_ORIGIN: zod_1.z.string().optional(),
-    RATE_LIMIT_WINDOW_MS: zod_1.z.string().transform(Number).pipe(zod_1.z.number().positive()).default('900000'), // 15 minutes
-    RATE_LIMIT_MAX: zod_1.z.string().transform(Number).pipe(zod_1.z.number().positive()).default('100'),
-    LOG_LEVEL: zod_1.z.enum(['error', 'warn', 'info', 'debug']).default('info'),
-    API_VERSION: zod_1.z.string().default('v1'),
-    UPLOAD_MAX_SIZE: zod_1.z.string().transform(Number).pipe(zod_1.z.number().positive()).default('10485760'), // 10MB
+const envSchema = z.object({
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)).default('3000'),
+    DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+    JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
+    JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
+    JWT_EXPIRES_IN: z.string().default('24h'),
+    JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+    CORS_ORIGIN: z.string().optional(),
+    RATE_LIMIT_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).default('900000'), // 15 minutes
+    RATE_LIMIT_MAX: z.string().transform(Number).pipe(z.number().positive()).default('100'),
+    LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+    API_VERSION: z.string().default('v1'),
+    UPLOAD_MAX_SIZE: z.string().transform(Number).pipe(z.number().positive()).default('10485760'), // 10MB
+    // Helicone Configuration
+    HELICONE_API_KEY: z.string().optional(),
+    HELICONE_BASE_URL: z.string().url().optional(),
+    HELICONE_CACHE_ENABLED: z.string().transform(val => val === 'true').default('true'),
+    HELICONE_RETRY_ENABLED: z.string().transform(val => val === 'true').default('true'),
+    // V0 Configuration
+    V0_API_KEY: z.string().optional(),
+    V0_BASE_URL: z.string().url().optional(),
+    // AWS S3 Configuration
+    AWS_ACCESS_KEY_ID: z.string().optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().optional(),
+    AWS_REGION: z.string().optional(),
+    AWS_S3_BUCKET: z.string().optional(),
+    // Email Service (SendGrid)
+    SENDGRID_API_KEY: z.string().optional(),
+    SENDGRID_FROM_EMAIL: z.string().optional(),
+    // SMS Service (Thai SMS Gateway)
+    THAI_SMS_API_KEY: z.string().optional(),
+    THAI_SMS_SENDER: z.string().optional(),
+    // LINE Notify
+    LINE_NOTIFY_TOKEN: z.string().optional(),
+    // Food Delivery Platforms
+    GRABFOOD_API_KEY: z.string().optional(),
+    GRABFOOD_MERCHANT_ID: z.string().optional(),
+    FOODPANDA_API_KEY: z.string().optional(),
+    FOODPANDA_STORE_ID: z.string().optional(),
+    LINEMAN_API_KEY: z.string().optional(),
+    LINEMAN_CHANNEL_ID: z.string().optional(),
+    // Analytics & Monitoring
+    GOOGLE_ANALYTICS_ID: z.string().optional(),
+    SENTRY_DSN: z.string().optional(),
+    LOGROCKET_APP_ID: z.string().optional(),
+    // Maps & Location
+    GOOGLE_MAPS_API_KEY: z.string().optional(),
+    LINE_MAPS_API_KEY: z.string().optional(),
+    // Thai Government APIs
+    THAI_TAX_API_KEY: z.string().optional(),
+    THAI_BUSINESS_API_KEY: z.string().optional(),
+    // QR Code Generation
+    QR_CODE_API_KEY: z.string().optional(),
+    // Redis (Caching)
+    REDIS_URL: z.string().optional(),
 });
 // Validate environment variables
 const envValidation = envSchema.safeParse(process.env);
@@ -35,43 +71,43 @@ if (!envValidation.success) {
     });
     process.exit(1);
 }
-exports.env = envValidation.data;
+export const env = envValidation.data;
 // Additional computed values
-exports.config = {
-    ...exports.env,
-    isDevelopment: exports.env.NODE_ENV === 'development',
-    isProduction: exports.env.NODE_ENV === 'production',
-    isTest: exports.env.NODE_ENV === 'test',
+export const config = {
+    ...env,
+    isDevelopment: env.NODE_ENV === 'development',
+    isProduction: env.NODE_ENV === 'production',
+    isTest: env.NODE_ENV === 'test',
     // API configuration
     api: {
-        version: exports.env.API_VERSION,
-        basePath: `/api/${exports.env.API_VERSION}`,
-        corsOrigins: exports.env.CORS_ORIGIN
-            ? exports.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+        version: env.API_VERSION,
+        basePath: `/api/${env.API_VERSION}`,
+        corsOrigins: env.CORS_ORIGIN
+            ? env.CORS_ORIGIN.split(',').map(origin => origin.trim())
             : ['http://localhost:3000', 'http://localhost:5173'],
     },
     // Security configuration
     security: {
         jwt: {
-            secret: exports.env.JWT_SECRET,
-            refreshSecret: exports.env.JWT_REFRESH_SECRET,
-            expiresIn: exports.env.JWT_EXPIRES_IN,
-            refreshExpiresIn: exports.env.JWT_REFRESH_EXPIRES_IN,
+            secret: env.JWT_SECRET,
+            refreshSecret: env.JWT_REFRESH_SECRET,
+            expiresIn: env.JWT_EXPIRES_IN,
+            refreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN,
         },
         rateLimit: {
-            windowMs: exports.env.RATE_LIMIT_WINDOW_MS,
-            max: exports.env.RATE_LIMIT_MAX,
+            windowMs: env.RATE_LIMIT_WINDOW_MS,
+            max: env.RATE_LIMIT_MAX,
         },
         cors: {
-            origin: exports.env.CORS_ORIGIN
-                ? exports.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+            origin: env.CORS_ORIGIN
+                ? env.CORS_ORIGIN.split(',').map(origin => origin.trim())
                 : ['http://localhost:3000', 'http://localhost:5173'],
             credentials: true,
         },
     },
     // Database configuration
     database: {
-        url: exports.env.DATABASE_URL,
+        url: env.DATABASE_URL,
         pool: {
             min: 2,
             max: 10,
@@ -79,18 +115,32 @@ exports.config = {
     },
     // Upload configuration
     upload: {
-        maxSize: exports.env.UPLOAD_MAX_SIZE,
+        maxSize: env.UPLOAD_MAX_SIZE,
         allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
         maxFiles: 5,
     },
     // Logging configuration
     logging: {
-        level: exports.env.LOG_LEVEL,
-        format: exports.env.isProduction ? 'json' : 'dev',
+        level: env.LOG_LEVEL,
+        format: env.NODE_ENV === 'production' ? 'json' : 'dev',
+    },
+    // Helicone configuration
+    helicone: {
+        apiKey: env.HELICONE_API_KEY,
+        baseUrl: env.HELICONE_BASE_URL || 'https://api.helicone.ai',
+        cacheEnabled: env.HELICONE_CACHE_ENABLED,
+        retryEnabled: env.HELICONE_RETRY_ENABLED,
+        enabled: !!env.HELICONE_API_KEY,
+    },
+    // V0 configuration
+    v0: {
+        apiKey: env.V0_API_KEY,
+        baseUrl: env.V0_BASE_URL || 'https://api.v0.dev',
+        enabled: !!env.V0_API_KEY,
     },
 };
 // Validate required environment variables for production
-if (exports.env.isProduction) {
+if (config.isProduction) {
     const requiredForProduction = [
         'DATABASE_URL',
         'JWT_SECRET',
@@ -104,6 +154,6 @@ if (exports.env.isProduction) {
     }
 }
 console.log('✅ Environment configuration loaded successfully');
-console.log(`🌍 Environment: ${exports.env.NODE_ENV}`);
-console.log(`🔗 API Version: ${exports.env.API_VERSION}`);
-console.log(`📊 Log Level: ${exports.env.LOG_LEVEL}`);
+console.log(`🌍 Environment: ${env.NODE_ENV}`);
+console.log(`🔗 API Version: ${env.API_VERSION}`);
+console.log(`📊 Log Level: ${env.LOG_LEVEL}`);

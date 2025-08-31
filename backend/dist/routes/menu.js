@@ -1,31 +1,29 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const express_1 = require("express");
-const zod_1 = require("zod");
-const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Router } from 'express';
+import { z } from 'zod';
+const router = Router();
+const prisma = new PrismaClient();
 // Validation schemas
-const createMenuSchema = zod_1.z.object({
-    restaurant_id: zod_1.z.string().uuid(),
-    category_id: zod_1.z.string().uuid().optional(),
-    name_th: zod_1.z.string().min(1, 'Thai name is required'),
-    name_en: zod_1.z.string().min(1, 'English name is required'),
-    description_th: zod_1.z.string().optional(),
-    description_en: zod_1.z.string().optional(),
-    price_thb: zod_1.z.number().positive('Price must be positive'),
-    cost_thb: zod_1.z.number().positive().optional(),
-    spice_level: zod_1.z.number().min(1).max(5).optional(),
-    preparation_time: zod_1.z.number().positive().optional(),
-    is_vegetarian: zod_1.z.boolean().default(false),
-    is_vegan: zod_1.z.boolean().default(false),
-    is_halal: zod_1.z.boolean().default(false),
-    is_gluten_free: zod_1.z.boolean().default(false),
-    is_available: zod_1.z.boolean().default(true),
-    image_url: zod_1.z.string().url().optional(),
-    sort_order: zod_1.z.number().default(0),
-    allergens: zod_1.z.array(zod_1.z.string()).default([]),
-    nutritional_info: zod_1.z.record(zod_1.z.any()).optional()
+const createMenuSchema = z.object({
+    restaurant_id: z.string().uuid(),
+    category_id: z.string().uuid().optional(),
+    name_th: z.string().min(1, 'Thai name is required'),
+    name_en: z.string().min(1, 'English name is required'),
+    description_th: z.string().optional(),
+    description_en: z.string().optional(),
+    price_thb: z.number().positive('Price must be positive'),
+    cost_thb: z.number().positive().optional(),
+    spice_level: z.number().min(1).max(5).optional(),
+    preparation_time: z.number().positive().optional(),
+    is_vegetarian: z.boolean().default(false),
+    is_vegan: z.boolean().default(false),
+    is_halal: z.boolean().default(false),
+    is_gluten_free: z.boolean().default(false),
+    is_available: z.boolean().default(true),
+    image_url: z.string().url().optional(),
+    sort_order: z.number().default(0),
+    allergens: z.array(z.string()).default([]),
+    nutritional_info: z.record(z.any()).optional()
 });
 const updateMenuSchema = createMenuSchema.partial().omit({ restaurant_id: true });
 // Get all menu items for a restaurant with categories
@@ -122,7 +120,9 @@ router.post('/', async (req, res) => {
             data: {
                 ...validatedData,
                 price_thb: validatedData.price_thb,
-                cost_thb: validatedData.cost_thb || null
+                cost_thb: validatedData.cost_thb || null,
+                allergens: validatedData.allergens.join(', '), // Convert array to comma-separated string
+                nutritional_info: validatedData.nutritional_info ? JSON.stringify(validatedData.nutritional_info) : null
             },
             include: {
                 category: {
@@ -141,7 +141,7 @@ router.post('/', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -170,13 +170,22 @@ router.put('/:id', async (req, res) => {
                 message: 'ไม่พบรายการเมนูนี้'
             });
         }
+        const updateData = {
+            ...validatedData,
+            price_thb: validatedData.price_thb ? validatedData.price_thb : undefined,
+            cost_thb: validatedData.cost_thb || null
+        };
+        // Convert allergens array to string if provided
+        if (validatedData.allergens !== undefined) {
+            updateData.allergens = validatedData.allergens.join(', ');
+        }
+        // Convert nutritional_info to JSON string if provided
+        if (validatedData.nutritional_info !== undefined) {
+            updateData.nutritional_info = validatedData.nutritional_info ? JSON.stringify(validatedData.nutritional_info) : null;
+        }
         const menuItem = await prisma.menu.update({
             where: { id },
-            data: {
-                ...validatedData,
-                price_thb: validatedData.price_thb ? validatedData.price_thb : undefined,
-                cost_thb: validatedData.cost_thb || null
-            },
+            data: updateData,
             include: {
                 category: {
                     select: {
@@ -194,7 +203,7 @@ router.put('/:id', async (req, res) => {
         });
     }
     catch (error) {
-        if (error instanceof zod_1.z.ZodError) {
+        if (error instanceof z.ZodError) {
             return res.status(400).json({
                 success: false,
                 message: 'ข้อมูลไม่ถูกต้อง',
@@ -313,4 +322,4 @@ router.get('/:restaurantId/stats', async (req, res) => {
         });
     }
 });
-exports.default = router;
+export default router;

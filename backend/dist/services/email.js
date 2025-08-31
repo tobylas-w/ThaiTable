@@ -1,101 +1,54 @@
 import sgMail from '@sendgrid/mail';
 import { integrationConfig } from '../config/integrations';
-
-export interface EmailOptions {
-  to: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: string;
-  attachments?: Array<{
-    content: string;
-    filename: string;
-    type: string;
-    disposition: string;
-  }>;
-}
-
-export interface OrderConfirmationEmail {
-  customerName: string;
-  orderNumber: string;
-  orderItems: Array<{
-    name: string;
-    quantity: number;
-    price: number;
-  }>;
-  total: number;
-  restaurantName: string;
-  estimatedTime: string;
-}
-
-export interface WelcomeEmail {
-  customerName: string;
-  restaurantName: string;
-  loginUrl: string;
-}
-
 export class EmailService {
-  private static instance: EmailService;
-  private enabled: boolean;
-
-  private constructor() {
-    this.enabled = integrationConfig.email.sendgrid.enabled;
-
-    if (this.enabled) {
-      sgMail.setApiKey(integrationConfig.email.sendgrid.apiKey!);
+    constructor() {
+        this.enabled = integrationConfig.email.sendgrid.enabled;
+        if (this.enabled) {
+            sgMail.setApiKey(integrationConfig.email.sendgrid.apiKey);
+        }
     }
-  }
-
-  public static getInstance(): EmailService {
-    if (!EmailService.instance) {
-      EmailService.instance = new EmailService();
+    static getInstance() {
+        if (!EmailService.instance) {
+            EmailService.instance = new EmailService();
+        }
+        return EmailService.instance;
     }
-    return EmailService.instance;
-  }
-
-  public async sendEmail(options: EmailOptions): Promise<boolean> {
-    if (!this.enabled) {
-      console.warn('[Email] Service not enabled, skipping email send');
-      return false;
+    async sendEmail(options) {
+        if (!this.enabled) {
+            console.warn('[Email] Service not enabled, skipping email send');
+            return false;
+        }
+        const msg = {
+            to: options.to,
+            from: options.from || integrationConfig.email.sendgrid.fromEmail,
+            subject: options.subject,
+            attachments: options.attachments,
+        };
+        // SendGrid requires either text or html
+        if (options.text) {
+            msg.text = options.text;
+        }
+        if (options.html) {
+            msg.html = options.html;
+        }
+        if (!msg.text && !msg.html) {
+            msg.text = options.subject; // Fallback to subject as text
+        }
+        try {
+            await sgMail.send(msg);
+            console.log(`[Email] Sent successfully to ${Array.isArray(options.to) ? options.to.join(', ') : options.to}`);
+            return true;
+        }
+        catch (error) {
+            console.error('[Email] Send error:', error);
+            return false;
+        }
     }
-
-    const msg: any = {
-      to: options.to,
-      from: options.from || integrationConfig.email.sendgrid.fromEmail,
-      subject: options.subject,
-      attachments: options.attachments,
-    };
-
-    // SendGrid requires either text or html
-    if (options.text) {
-      msg.text = options.text;
-    }
-    if (options.html) {
-      msg.html = options.html;
-    }
-    if (!msg.text && !msg.html) {
-      msg.text = options.subject; // Fallback to subject as text
-    }
-
-    try {
-      await sgMail.send(msg);
-      console.log(`[Email] Sent successfully to ${Array.isArray(options.to) ? options.to.join(', ') : options.to}`);
-      return true;
-    } catch (error) {
-      console.error('[Email] Send error:', error);
-      return false;
-    }
-  }
-
-  public async sendOrderConfirmation(
-    email: string,
-    orderData: OrderConfirmationEmail
-  ): Promise<boolean> {
-    const itemsList = orderData.orderItems
-      .map(item => `${item.quantity}x ${item.name} - ฿${item.price}`)
-      .join('\n');
-
-    const html = `
+    async sendOrderConfirmation(email, orderData) {
+        const itemsList = orderData.orderItems
+            .map(item => `${item.quantity}x ${item.name} - ฿${item.price}`)
+            .join('\n');
+        const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
           <h1 style="color: #e74c3c; margin: 0;">🍜 ${orderData.restaurantName}</h1>
@@ -109,12 +62,10 @@ export class EmailService {
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3>Order #${orderData.orderNumber}</h3>
             <div style="margin: 15px 0;">
-              ${orderData.orderItems.map(item =>
-      `<div style="display: flex; justify-content: space-between; margin: 5px 0;">
+              ${orderData.orderItems.map(item => `<div style="display: flex; justify-content: space-between; margin: 5px 0;">
                   <span>${item.quantity}x ${item.name}</span>
                   <span>฿${item.price}</span>
-                </div>`
-    ).join('')}
+                </div>`).join('')}
             </div>
             <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
             <div style="display: flex; justify-content: space-between; font-weight: bold;">
@@ -133,19 +84,14 @@ export class EmailService {
         </div>
       </div>
     `;
-
-    return this.sendEmail({
-      to: email,
-      subject: `Order Confirmation #${orderData.orderNumber} - ${orderData.restaurantName}`,
-      html,
-    });
-  }
-
-  public async sendWelcomeEmail(
-    email: string,
-    welcomeData: WelcomeEmail
-  ): Promise<boolean> {
-    const html = `
+        return this.sendEmail({
+            to: email,
+            subject: `Order Confirmation #${orderData.orderNumber} - ${orderData.restaurantName}`,
+            html,
+        });
+    }
+    async sendWelcomeEmail(email, welcomeData) {
+        const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
           <h1 style="color: #e74c3c; margin: 0;">🍜 ${welcomeData.restaurantName}</h1>
@@ -182,63 +128,15 @@ export class EmailService {
         </div>
       </div>
     `;
-
-    return this.sendEmail({
-      to: email,
-      subject: `Welcome to ${welcomeData.restaurantName} - ThaiTable`,
-      html,
-    });
-  }
-
-  public async sendEmailVerification(
-    email: string,
-    verificationToken: string,
-    restaurantName: string
-  ): Promise<boolean> {
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
-
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
-          <h1 style="color: #e74c3c; margin: 0;">🍜 ${restaurantName}</h1>
-        </div>
-
-        <div style="padding: 20px;">
-          <h2 style="color: #2c3e50;">Email Verification Required</h2>
-          <p>Welcome to ${restaurantName}! Please verify your email address to complete your registration.</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}"
-               style="background-color: #27ae60; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Verify Email Address
-            </a>
-          </div>
-
-          <p>If you didn't create this account, please ignore this email.</p>
-          <p>This verification link will expire in 24 hours for security reasons.</p>
-
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #7f8c8d;">
-            <p>For security, never share this email with anyone.</p>
-          </div>
-        </div>
-      </div>
-    `;
-
-    return this.sendEmail({
-      to: email,
-      subject: `Email Verification - ${restaurantName}`,
-      html,
-    });
-  }
-
-  public async sendPasswordReset(
-    email: string,
-    resetToken: string,
-    restaurantName: string
-  ): Promise<boolean> {
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
-
-    const html = `
+        return this.sendEmail({
+            to: email,
+            subject: `Welcome to ${welcomeData.restaurantName} - ThaiTable`,
+            html,
+        });
+    }
+    async sendPasswordReset(email, resetToken, restaurantName) {
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+        const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
           <h1 style="color: #e74c3c; margin: 0;">🍜 ${restaurantName}</h1>
@@ -264,34 +162,22 @@ export class EmailService {
         </div>
       </div>
     `;
-
-    return this.sendEmail({
-      to: email,
-      subject: `Password Reset - ${restaurantName}`,
-      html,
-    });
-  }
-
-  public async sendDailyReport(
-    email: string,
-    reportData: {
-      restaurantName: string;
-      date: string;
-      totalOrders: number;
-      totalRevenue: number;
-      topItems: Array<{ name: string; quantity: number; revenue: number }>;
+        return this.sendEmail({
+            to: email,
+            subject: `Password Reset - ${restaurantName}`,
+            html,
+        });
     }
-  ): Promise<boolean> {
-    const topItemsHtml = reportData.topItems
-      .map(item => `
+    async sendDailyReport(email, reportData) {
+        const topItemsHtml = reportData.topItems
+            .map(item => `
         <div style="display: flex; justify-content: space-between; margin: 5px 0;">
           <span>${item.name}</span>
           <span>${item.quantity} orders - ฿${item.revenue}</span>
         </div>
       `)
-      .join('');
-
-    const html = `
+            .join('');
+        const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
           <h1 style="color: #e74c3c; margin: 0;">🍜 ${reportData.restaurantName}</h1>
@@ -322,17 +208,14 @@ export class EmailService {
         </div>
       </div>
     `;
-
-    return this.sendEmail({
-      to: email,
-      subject: `Daily Report - ${reportData.date} - ${reportData.restaurantName}`,
-      html,
-    });
-  }
-
-  public isEnabled(): boolean {
-    return this.enabled;
-  }
+        return this.sendEmail({
+            to: email,
+            subject: `Daily Report - ${reportData.date} - ${reportData.restaurantName}`,
+            html,
+        });
+    }
+    isEnabled() {
+        return this.enabled;
+    }
 }
-
 export const emailService = EmailService.getInstance();
