@@ -19,6 +19,8 @@ model Restaurant {
   website        String?
   business_hours String? // Store as JSON string for flexible hours
   cuisine_type   String? // Thai, Fusion, etc.
+  primaryColor   String? // HEX colour for branding
+  logoUrl        String? // S3 URL for restaurant logo
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   users          User[]

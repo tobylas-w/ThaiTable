@@ -1,23 +1,27 @@
 import { useEffect } from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 
 // Auth Pages
 import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login';
+import RegisterPage from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
 
 // Protected Pages
+import AdminDashboard from './pages/AdminDashboard';
 import Dashboard from './pages/Dashboard';
 import MenuManagement from './pages/MenuManagement';
 import OrderManagement from './pages/OrderManagement';
 import RestaurantSetup from './pages/RestaurantSetup';
+import UserPreferences from './pages/UserPreferences';
 
 // Components
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ThemeProvider from './components/ThemeProvider';
 
 // Services & Stores
 import { authService } from './services/auth.service';
@@ -53,11 +57,12 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
+      <ThemeProvider>
+        <div className="min-h-screen bg-background-primary">
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/setup" element={<RestaurantSetup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -76,19 +81,30 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="orders" element={<OrderManagement />} />
               <Route path="menu" element={<MenuManagement />} />
+              <Route path="preferences" element={<UserPreferences />} />
             </Route>
+
+            {/* Admin Routes */}
+            <Route
+              path="admin"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 Page */}
             <Route
               path="*"
               element={
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="min-h-screen flex items-center justify-center bg-background-primary">
                   <div className="text-center">
-                    <h1 className="text-6xl font-bold text-gray-300 mb-4">404</h1>
-                    <p className="text-xl text-gray-600 mb-8">Page not found</p>
+                    <h1 className="text-6xl font-bold text-text-tertiary mb-4">404</h1>
+                    <p className="text-xl text-text-secondary mb-8">Page not found</p>
                     <a
                       href="/dashboard"
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                      className="btn-primary inline-block"
                     >
                       Go to Dashboard
                     </a>
@@ -98,7 +114,7 @@ function App() {
             />
           </Routes>
         </div>
-      </Router>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

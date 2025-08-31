@@ -1,3 +1,229 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* CSS Custom Properties for Theme System */
+:root {
+  /* Font Size Variables */
+  --font-size-multiplier: 1;
+
+  /* Layout Density Variables */
+  --spacing-density-xs: 0.25rem;
+  --spacing-density-sm: 0.5rem;
+  --spacing-density-md: 1rem;
+  --spacing-density-lg: 1.5rem;
+  --spacing-density-xl: 2rem;
+}
+
+/* Font Size Variants */
+[data-font-size="small"] {
+  --font-size-multiplier: 0.875;
+}
+
+[data-font-size="medium"] {
+  --font-size-multiplier: 1;
+}
+
+[data-font-size="large"] {
+  --font-size-multiplier: 1.125;
+}
+
+/* Layout Density Variants */
+[data-layout-density="compact"] {
+  --spacing-density-xs: 0.125rem;
+  --spacing-density-sm: 0.25rem;
+  --spacing-density-md: 0.75rem;
+  --spacing-density-lg: 1rem;
+  --spacing-density-xl: 1.5rem;
+}
+
+[data-layout-density="comfortable"] {
+  --spacing-density-xs: 0.25rem;
+  --spacing-density-sm: 0.5rem;
+  --spacing-density-md: 1rem;
+  --spacing-density-lg: 1.5rem;
+  --spacing-density-xl: 2rem;
+}
+
+[data-layout-density="spacious"] {
+  --spacing-density-xs: 0.375rem;
+  --spacing-density-sm: 0.75rem;
+  --spacing-density-md: 1.25rem;
+  --spacing-density-lg: 2rem;
+  --spacing-density-xl: 2.5rem;
+}
+
+/* Thai Gold Color Scheme (Default) */
+[data-color-scheme="thai-gold"] {
+  /* Primary Colors */
+  --color-primary-50: 254 252 232;
+  --color-primary-100: 254 249 195;
+  --color-primary-200: 254 240 138;
+  --color-primary-300: 253 224 71;
+  --color-primary-400: 250 204 21;
+  --color-primary-500: 234 179 8;
+  --color-primary-600: 202 138 4;
+  --color-primary-700: 161 98 7;
+  --color-primary-800: 133 77 14;
+  --color-primary-900: 113 63 18;
+  --color-primary-950: 66 32 6;
+
+  /* Light Mode Colors */
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 249 250 251;
+  --color-bg-tertiary: 243 244 246;
+  --color-text-primary: 17 24 39;
+  --color-text-secondary: 75 85 99;
+  --color-text-tertiary: 107 114 128;
+  --color-border-primary: 229 231 235;
+  --color-border-secondary: 243 244 246;
+}
+
+[data-color-scheme="thai-gold"].dark {
+  /* Dark Mode Colors */
+  --color-bg-primary: 17 24 39;
+  --color-bg-secondary: 31 41 55;
+  --color-bg-tertiary: 55 65 81;
+  --color-text-primary: 249 250 251;
+  --color-text-secondary: 209 213 219;
+  --color-text-tertiary: 156 163 175;
+  --color-border-primary: 75 85 99;
+  --color-border-secondary: 55 65 81;
+}
+
+/* Blue Color Scheme */
+[data-color-scheme="blue"] {
+  --color-primary-50: 239 246 255;
+  --color-primary-100: 219 234 254;
+  --color-primary-200: 191 219 254;
+  --color-primary-300: 147 197 253;
+  --color-primary-400: 96 165 250;
+  --color-primary-500: 59 130 246;
+  --color-primary-600: 37 99 235;
+  --color-primary-700: 29 78 216;
+  --color-primary-800: 30 64 175;
+  --color-primary-900: 30 58 138;
+  --color-primary-950: 23 37 84;
+
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 248 250 252;
+  --color-bg-tertiary: 241 245 249;
+  --color-text-primary: 15 23 42;
+  --color-text-secondary: 71 85 105;
+  --color-text-tertiary: 100 116 139;
+  --color-border-primary: 226 232 240;
+  --color-border-secondary: 241 245 249;
+}
+
+[data-color-scheme="blue"].dark {
+  --color-bg-primary: 15 23 42;
+  --color-bg-secondary: 30 41 59;
+  --color-bg-tertiary: 51 65 85;
+  --color-text-primary: 248 250 252;
+  --color-text-secondary: 203 213 225;
+  --color-text-tertiary: 148 163 184;
+  --color-border-primary: 71 85 105;
+  --color-border-secondary: 51 65 85;
+}
+
+/* Green Color Scheme */
+[data-color-scheme="green"] {
+  --color-primary-50: 240 253 244;
+  --color-primary-100: 220 252 231;
+  --color-primary-200: 187 247 208;
+  --color-primary-300: 134 239 172;
+  --color-primary-400: 74 222 128;
+  --color-primary-500: 34 197 94;
+  --color-primary-600: 22 163 74;
+  --color-primary-700: 21 128 61;
+  --color-primary-800: 22 101 52;
+  --color-primary-900: 20 83 45;
+  --color-primary-950: 5 46 22;
+
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 247 254 231;
+  --color-bg-tertiary: 236 252 203;
+  --color-text-primary: 20 83 45;
+  --color-text-secondary: 22 101 52;
+  --color-text-tertiary: 21 128 61;
+  --color-border-primary: 187 247 208;
+  --color-border-secondary: 220 252 231;
+}
+
+[data-color-scheme="green"].dark {
+  --color-bg-primary: 20 83 45;
+  --color-bg-secondary: 22 101 52;
+  --color-bg-tertiary: 21 128 61;
+  --color-text-primary: 240 253 244;
+  --color-text-secondary: 220 252 231;
+  --color-text-tertiary: 187 247 208;
+  --color-border-primary: 22 101 52;
+  --color-border-secondary: 21 128 61;
+}
+
+/* Purple Color Scheme */
+[data-color-scheme="purple"] {
+  --color-primary-50: 250 245 255;
+  --color-primary-100: 243 232 255;
+  --color-primary-200: 233 213 255;
+  --color-primary-300: 196 181 253;
+  --color-primary-400: 168 162 250;
+  --color-primary-500: 139 92 246;
+  --color-primary-600: 124 58 237;
+  --color-primary-700: 109 40 217;
+  --color-primary-800: 91 33 182;
+  --color-primary-900: 76 29 149;
+  --color-primary-950: 46 16 101;
+
+  --color-bg-primary: 255 255 255;
+  --color-bg-secondary: 250 245 255;
+  --color-bg-tertiary: 243 232 255;
+  --color-text-primary: 76 29 149;
+  --color-text-secondary: 91 33 182;
+  --color-text-tertiary: 109 40 217;
+  --color-border-primary: 196 181 253;
+  --color-border-secondary: 233 213 255;
+}
+
+[data-color-scheme="purple"].dark {
+  --color-bg-primary: 76 29 149;
+  --color-bg-secondary: 91 33 182;
+  --color-bg-tertiary: 109 40 217;
+  --color-text-primary: 250 245 255;
+  --color-text-secondary: 243 232 255;
+  --color-text-tertiary: 233 213 255;
+  --color-border-primary: 91 33 182;
+  --color-border-secondary: 109 40 217;
+}
+
+/* Reduced Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --color-text-primary: 0 0 0;
+  --color-text-secondary: 0 0 0;
+  --color-text-tertiary: 0 0 0;
+  --color-border-primary: 0 0 0;
+  --color-border-secondary: 0 0 0;
+}
+
+.high-contrast.dark {
+  --color-text-primary: 255 255 255;
+  --color-text-secondary: 255 255 255;
+  --color-text-tertiary: 255 255 255;
+  --color-border-primary: 255 255 255;
+  --color-border-secondary: 255 255 255;
+}
+
+/* Font Size Scaling */
+html {
+  font-size: calc(1rem * var(--font-size-multiplier));
+}

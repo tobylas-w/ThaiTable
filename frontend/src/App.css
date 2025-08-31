@@ -7,18 +7,97 @@
   html {
     font-family: 'Inter', 'Sarabun', system-ui, sans-serif;
   }
+
+  body {
+    @apply bg-background-primary text-text-primary transition-theme;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    @apply bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium py-density-sm px-density-md rounded-md transition-theme focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-background-primary;
   }
-  
+
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-md transition-colors;
+    @apply bg-background-secondary hover:bg-background-tertiary text-text-primary font-medium py-density-sm px-density-md rounded-md transition-theme border border-border-primary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-background-primary;
   }
-  
+
   .input-field {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500;
+    @apply block w-full px-density-sm py-density-sm border border-border-primary rounded-md shadow-sm bg-background-primary text-text-primary transition-theme focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-offset-background-primary placeholder:text-text-tertiary;
+  }
+
+  .card {
+    @apply bg-background-secondary border border-border-primary rounded-lg p-density-lg shadow-sm transition-theme;
+  }
+
+  .card-header {
+    @apply border-b border-border-primary pb-density-md mb-density-md;
+  }
+
+  .text-heading {
+    @apply text-text-primary font-semibold;
+  }
+
+  .text-body {
+    @apply text-text-secondary;
+  }
+
+  .text-muted {
+    @apply text-text-tertiary;
+  }
+
+  .divider {
+    @apply border-border-primary;
+  }
+
+  .nav-item {
+    @apply text-text-secondary hover:text-text-primary hover:bg-background-tertiary px-density-md py-density-sm rounded-md transition-theme;
+  }
+
+  .nav-item-active {
+    @apply bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300;
+  }
+
+  /* Form styles */
+  .form-group {
+    @apply space-y-density-sm;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-text-primary;
+  }
+
+  .form-error {
+    @apply text-red-600 dark:text-red-400 text-sm mt-1;
+  }
+
+  .form-success {
+    @apply text-green-600 dark:text-green-400 text-sm mt-1;
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-background-tertiary rounded;
+  }
+
+  /* Notification styles */
+  .notification {
+    @apply bg-background-secondary border border-border-primary rounded-lg shadow-lg p-density-md;
+  }
+
+  .notification-success {
+    @apply border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20;
+  }
+
+  .notification-error {
+    @apply border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20;
+  }
+
+  .notification-warning {
+    @apply border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20;
+  }
+
+  .notification-info {
+    @apply border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20;
   }
 }

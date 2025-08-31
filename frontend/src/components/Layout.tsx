@@ -7,12 +7,13 @@ import {
   Settings,
   ShoppingCart,
   User,
-  Users,
   X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
+import { hasRole } from '../utils/roles';
 import NotificationSystem, { useNotifications } from './NotificationSystem';
 
 const Layout = () => {
@@ -21,6 +22,7 @@ const Layout = () => {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useAuthStore();
 
   // Notification system
   const {
@@ -58,14 +60,19 @@ const Layout = () => {
     return () => clearInterval(interval);
   }, [notifyOrder, t]);
 
-  const navigation = [
+  const baseNav = [
     { name: t('navigation.dashboard'), href: '/', icon: Home },
     { name: t('navigation.menu'), href: '/menu', icon: Menu },
     { name: t('navigation.orders'), href: '/orders', icon: ShoppingCart },
-    { name: t('navigation.users'), href: '/users', icon: Users },
+    { name: 'Preferences', href: '/preferences', icon: Settings },
     { name: t('navigation.reports'), href: '/reports', icon: BarChart3 },
     { name: t('navigation.settings'), href: '/settings', icon: Settings },
   ];
+
+  const navigation = [...baseNav];
+  if (hasRole(user?.role || '', ['ADMIN'])) {
+    navigation.splice(3, 0, { name: 'Admin', href: '/admin', icon: Settings });
+  }
 
   const languages = [
     { code: 'th', name: 'ไทย', flag: '🇹🇭' },
@@ -115,9 +122,9 @@ const Layout = () => {
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background-primary">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <nav className="bg-background-secondary shadow-sm border-b border-border-primary sticky top-0 z-50 transition-theme">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -154,8 +161,8 @@ const Layout = () => {
                       key={item.name}
                       to={item.href}
                       className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${isActive
-                          ? 'border-yellow-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        ? 'border-yellow-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                         }`}
                       aria-current={isActive ? 'page' : undefined}
                     >
@@ -164,6 +171,11 @@ const Layout = () => {
                     </Link>
                   );
                 })}
+                {hasRole(user?.role || '', ['ADMIN']) && (
+                  <Link to="/admin" className="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    <Settings className="h-4 w-4 mr-2" /> Admin
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -233,7 +245,7 @@ const Layout = () => {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                  <div className="absolute right-0 mt-2 w-48 bg-background-secondary rounded-md shadow-lg py-1 z-10 border border-border-primary transition-theme">
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -253,7 +265,7 @@ const Layout = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="md:hidden border-t border-border-primary bg-background-secondary transition-theme">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -263,8 +275,8 @@ const Layout = () => {
                     key={item.name}
                     to={item.href}
                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
                     aria-current={isActive ? 'page' : undefined}
                   >
