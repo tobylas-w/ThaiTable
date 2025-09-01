@@ -4,7 +4,7 @@ import {
   ChefHat,
   Clock,
   Eye,
-  Fire,
+  Flame,
   MapPin,
   Play,
   RotateCcw,
@@ -121,7 +121,7 @@ const Dashboard = () => {
       type: 'warning',
       title: 'Pad Thai ingredients running low',
       action: 'Check inventory',
-      icon: Fire,
+      icon: Flame,
       color: 'amber'
     },
     {
@@ -178,7 +178,7 @@ const Dashboard = () => {
   const getKitchenStatusIcon = (status: string) => {
     switch (status) {
       case 'prep': return ChefHat
-      case 'cooking': return Fire
+      case 'cooking': return Flame
       case 'plating': return Utensils
       case 'ready': return Sparkles
       default: return Clock
@@ -219,25 +219,25 @@ const Dashboard = () => {
 
         {/* MASSIVE KEY METRICS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-density-lg">
-          <div className="text-center p-density-lg">
+          <div className="text-center p-density-lg bg-gray-50 dark:bg-gray-800 rounded-xl shadow border border-border-primary">
             <div className="text-6xl md:text-7xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dashboardData.todayOrders}</div>
             <div className="text-xl font-semibold text-heading mb-1">Orders Today</div>
             <div className="text-lg text-green-600 dark:text-green-400 font-medium">{dashboardData.trendsToday.orders} vs yesterday</div>
           </div>
 
-          <div className="text-center p-density-lg">
+          <div className="text-center p-density-lg bg-gray-50 dark:bg-gray-800 rounded-xl shadow border border-border-primary">
             <div className="text-6xl md:text-7xl font-bold text-green-600 dark:text-green-400 mb-2">{formatThaiCurrency(dashboardData.todayRevenue)}</div>
             <div className="text-xl font-semibold text-heading mb-1">Revenue Today</div>
             <div className="text-lg text-green-600 dark:text-green-400 font-medium">{dashboardData.trendsToday.revenue} vs yesterday</div>
           </div>
 
-          <div className="text-center p-density-lg">
+          <div className="text-center p-density-lg bg-gray-50 dark:bg-gray-800 rounded-xl shadow border border-border-primary">
             <div className="text-6xl md:text-7xl font-bold text-blue-600 dark:text-blue-400 mb-2">{dashboardData.tablesOccupied}/{dashboardData.totalTables}</div>
             <div className="text-xl font-semibold text-heading mb-1">Tables Occupied</div>
             <div className="text-lg text-text-secondary font-medium">{dashboardData.waitTime}min avg wait</div>
           </div>
 
-          <div className="text-center p-density-lg">
+          <div className="text-center p-density-lg bg-gray-50 dark:bg-gray-800 rounded-xl shadow border border-border-primary">
             <div className="text-6xl md:text-7xl font-bold text-primary-600 dark:text-primary-400 mb-2">{dashboardData.trendsToday.satisfaction}</div>
             <div className="text-xl font-semibold text-heading mb-1">Satisfaction</div>
             <div className="text-lg text-text-secondary font-medium">Customer Rating</div>
@@ -250,17 +250,15 @@ const Dashboard = () => {
         {criticalInsights.map((insight, index) => {
           const Icon = insight.icon
           return (
-            <div key={index} className={`card-elevated border-l-4 ${
-              insight.color === 'red' ? 'border-red-500 notification-error' :
+            <div key={index} className={`card-elevated border-l-4 ${insight.color === 'red' ? 'border-red-500 notification-error' :
               insight.color === 'amber' ? 'border-primary-500 notification-warning' :
-              'border-blue-500 notification-info'
-            }`}>
+                'border-blue-500 notification-info'
+              }`}>
               <div className="flex items-start space-x-3">
-                <Icon className={`h-6 w-6 mt-1 ${
-                  insight.color === 'red' ? 'text-red-600 dark:text-red-400' :
+                <Icon className={`h-6 w-6 mt-1 ${insight.color === 'red' ? 'text-red-600 dark:text-red-400' :
                   insight.color === 'amber' ? 'text-primary-600 dark:text-primary-400' :
-                  'text-blue-600 dark:text-blue-400'
-                }`} />
+                    'text-blue-600 dark:text-blue-400'
+                  }`} />
                 <div className="flex-1">
                   <h3 className="font-semibold text-heading text-lg">{insight.title}</h3>
                   <button className="mt-2 btn-primary text-sm">
@@ -297,11 +295,10 @@ const Dashboard = () => {
             {kitchenQueue.map((order) => {
               const StatusIcon = getKitchenStatusIcon(order.status)
               return (
-                <div key={order.id} className={`border-l-4 p-4 rounded-lg transition-theme ${
-                  order.priority === 'urgent' ? 'border-red-500 notification-error' :
+                <div key={order.id} className={`border-l-4 p-4 rounded-lg transition-theme ${order.priority === 'urgent' ? 'border-red-500 notification-error' :
                   order.priority === 'high' ? 'border-primary-500 notification-warning' :
-                  'border-blue-500 bg-background-secondary'
-                }`}>
+                    'border-blue-500 bg-background-secondary'
+                  }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-lg ${getKitchenStatusColor(order.status)}`}>
@@ -314,9 +311,8 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-bold text-heading">{order.total}</div>
-                      <div className={`text-sm font-medium ${
-                        order.status === 'ready' ? 'text-red-600 dark:text-red-400 animate-pulse' : 'text-text-secondary'
-                      }`}>
+                      <div className={`text-sm font-medium ${order.status === 'ready' ? 'text-red-600 dark:text-red-400 animate-pulse' : 'text-text-secondary'
+                        }`}>
                         {order.estimatedCompletion}
                       </div>
                     </div>
